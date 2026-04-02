@@ -28,13 +28,8 @@ export const extractContent = async (url) => {
 
     const result = {
         title: article.title,
-        excerpt: article.excerpt,
-        content: article.textContent,
-        length: article.length
+        content: article.textContent
     };
 
-    console.log(result);
-    return result;
+    return JSON.stringify(result);
 };
-
-extractContent("https://en.wikipedia.org/wiki/Artificial_intelligence");

@@ -26,5 +26,5 @@ export const getVideoDetails = async (url) => {
         title: data.snippet.title,
         description: data.snippet.description,
     };
-    console.log(result)
+    return JSON.stringify(result);
 };
