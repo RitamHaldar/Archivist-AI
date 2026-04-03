@@ -132,5 +132,24 @@ export async function generateEmbedding(content) {
         model: "mistral-embed"
     })
     const result = await embedding.embedQuery(content)
-    console.log(result)
+    return result
+}
+
+export async function generateClustername(content, existingcollections) {
+    const systemPromt = `You are a cluster name generation assistant.
+
+Generate a catchy and relevant name for the following content.
+existing collections: ${existingcollections.map(collection => collection.name).join(", ")}
+Rules:
+- Name should be short one to two words and they should not be same as any of the existing collections like Frondend , Backend, AI, ML, Python Learning, etc.
+- Use clear and concise language
+- Return only the name
+`
+    const response = await agent.invoke({
+        messages: [
+            new SystemMessage(systemPromt),
+            new HumanMessage(content)
+        ]
+    })
+    return response.messages[response.messages.length - 1].content
 }

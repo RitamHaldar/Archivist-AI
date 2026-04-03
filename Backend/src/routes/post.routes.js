@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createPost, suggestTags, addTags, getPosts } from "../controllers/post.controller.js";
+import { createPost, getPosts } from "../controllers/post.controller.js";
 import { Identifyuser } from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/upload.middleware.js";
 
@@ -17,14 +17,14 @@ router.post("/create", Identifyuser, upload.single("file"), createPost);
  * @route POST /api/posts/suggest-tags
  * @access private
  */
-router.post("/suggest-tags", Identifyuser, suggestTags);
+//router.post("/suggest-tags", Identifyuser, suggestTags);
 
 /**
  * @description Add tags to an existing post
  * @route POST /api/posts/add-tags
  * @access private
  */
-router.post("/add-tags", Identifyuser, addTags);
+//router.post("/add-tags", Identifyuser, addTags);
 
 /**
  * @description Get all posts for the authenticated user

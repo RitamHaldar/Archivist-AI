@@ -1,68 +1,15 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
 import * as d3 from 'd3';
+import { useHome } from '../Hooks/useHome';
 import {
   FileText, Play, X, Zap,
   Plus, Minus, RotateCcw, Maximize,
   ArrowRight, MoreHorizontal, Network, Star,
-  ChevronLeft, ChevronRight, Share2, Bookmark, Download, Globe, Sparkles
+  ChevronLeft, ChevronRight, Share2, Bookmark, Download, Globe, Sparkles,
+  Image as ImageIcon
 } from 'lucide-react';
 
-const temporaryData = {
-  'All': {
-    nodes: [
-      { id: '1', label: 'Cognitive Load Theory', type: 'article', source: 'interaction-design.org', tags: ['#UXDesign', '#Cognitive', '#Theory'], summary: 'Focuses on how spatial awareness dictates digital navigation patterns. Key takeaway: minimize friction by mapping to physical mental models.' },
-      { id: '2', label: 'Design Theory 2024', type: 'pdf', source: 'Document', tags: ['#Trends', '#UI', '#2024'], summary: 'Comprehensive review of emerging design trends, focusing on spatial UI and glassmorphic elements.' },
-      { id: '3', label: 'Tweet by @DieterRams', type: 'tweet', source: 'Twitter', tags: ['#Inspiration', '#Minimalism'], summary: '"Good design is as little design as possible." A foundational principle for creating intuitive interfaces.' },
-      { id: '4', label: 'Visual Hierarchy Tutorial', type: 'video', source: 'YouTube', tags: ['#Tutorial', '#Design'], summary: 'Video guide on establishing clear visual pathways using scale, color, and spacing.' },
-      { id: '5', label: 'Gestalt Principles', type: 'article', source: 'smashingmagazine.com', tags: ['#Psychology', '#UX'], summary: 'Understanding how the human eye perceives visual elements as a whole rather than disconnected parts.' },
-    ],
-    links: [
-      { source: '1', target: '2' },
-      { source: '2', target: '3' },
-      { source: '2', target: '4' },
-      { source: '1', target: '5' },
-      { source: '4', target: '5' },
-    ]
-  },
-  'AI Ethics': {
-    nodes: [
-      { id: '101', label: 'Algorithmic Bias', type: 'pdf', source: 'researchgate.net', tags: ['#Ethics', '#Bias', '#AI'], summary: 'Exploring how historical data can perpetuate bias in commercial algorithms.' },
-      { id: '102', label: 'The Trolley Problem AI', type: 'article', source: 'medium.com', tags: ['#Ethics', '#Philosophy'], summary: 'Classical philosophical dilemmas in the context of autonomous vehicles.' },
-      { id: '103', label: 'EU AI Act Summary', type: 'article', source: 'europa.eu', tags: ['#Regulation', '#Legal'], summary: 'Key points of the upcoming European legislation on artificial intelligence.' },
-    ],
-    links: [
-      { source: '101', target: '102' },
-      { source: '101', target: '103' },
-    ]
-  },
-  'Design Systems': {
-    nodes: [
-      { id: '201', label: 'Atomic Design', type: 'article', source: 'bradfrost.com', tags: ['#DesignSystems', '#Code'], summary: 'The foundational methodology for creating modular UI systems.' },
-      { id: '202', label: 'Tokens at Scale', type: 'video', source: 'Figma Youtube', tags: ['#Figma', '#Tokens'], summary: 'How to manage design tokens across large multi-platform applications.' },
-      { id: '203', label: 'Accessible Contrast', type: 'article', source: 'w3c.org', tags: ['#Accessibility', '#Color'], summary: 'Understanding WCAG 2.1 guidelines for visual hierarchy.' },
-    ],
-    links: [
-      { source: '201', target: '202' },
-      { source: '201', target: '203' },
-    ]
-  }
-};
 
-const ResurfacedData = {
-  'All': [
-    { type: 'Concept', time: '4 MONTHS AGO', title: 'The Philosophy of Minimalist UI', summary: '"Simplicity is not the absence of clutter, but the presence of focus." - Jony Ive.', context: 'Relevant to your current Design System project.' },
-    { type: 'Resource', time: '2 WEEKS AGO', title: 'Neural Architecture Patterns', summary: 'A deep dive into how transformer models maintain contextual coherence...', context: 'You mentioned transformers in a note yesterday.' },
-    { type: 'Paper', time: '1 YEAR AGO', title: 'Digital Gardens vs. File Cabinets', summary: 'Moving from static archival to organic growth of knowledge structures.', context: 'This is the foundation of collection.' },
-  ],
-  'AI Ethics': [
-    { type: 'Article', time: '1 MONTH AGO', title: 'Human-Centered AI', summary: 'Principles for designing algorithms that prioritize user agency and transparency.', context: 'You were researching AI alignment last week.' },
-    { type: 'Report', time: '3 MONTHS AGO', title: 'State of AI Bias 2023', summary: 'Comprehensive analysis of bias markers in top LLM providers.', context: 'Directly relates to the Bias node in your graph.' },
-  ],
-  'Design Systems': [
-    { type: 'Guide', time: '1 WEEK AGO', title: 'The Component Lifecycle', summary: 'Strategies for managing deprecated components in living design systems.', context: 'Matches your current work on UI refactoring.' },
-    { type: 'Tool', time: '2 MONTHS AGO', title: 'Style Dictionary deep-dive', summary: 'Automating multi-platform token delivery across web and mobile.', context: 'You saved this while setting up Figma sync.' },
-  ]
-};
 
 const ClusterCard = ({ icon: Icon, label, count, description, colorClass, bgClass }) => (
   <div className={`rounded-[32px] p-8 border border-gray-100 card-hover group cursor-pointer relative overflow-hidden flex flex-col h-full bg-[#FAFAFB] shadow-md shadow-gray-100/20`}>
@@ -78,31 +25,7 @@ const ClusterCard = ({ icon: Icon, label, count, description, colorClass, bgClas
   </div>
 );
 
-const RevisitItem = ({ image, title, savedAt, status }) => (
-  <div className="flex-none w-[320px] bg-white rounded-[28px] p-4 subtle-ring card-hover flex items-center gap-4 group cursor-pointer border border-gray-50/50">
-    <div className="w-20 h-20 rounded-[20px] overflow-hidden shrink-0 border border-gray-100 shadow-sm relative">
-      <img src={image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={title} />
-      {status === 'review' && <div className="absolute inset-0 bg-indigo-600/10 flex items-center justify-center backdrop-blur-none"></div>}
-    </div>
-    <div className="flex-1 min-w-0">
-      <h3 className="font-bold text-[15px] text-gray-900 mb-1 truncate leading-tight">{title}</h3>
-      <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-2">Saved {savedAt}</p>
-      <div className="flex items-center gap-1.5 text-indigo-600">
-        {status === 'review' ? (
-          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-indigo-50 rounded-md">
-            <Star className="w-3 h-3 fill-indigo-600" />
-            <span className="text-[10px] font-bold">Review suggested</span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 rounded-md">
-            <Zap className="w-3 h-3 text-emerald-600 fill-emerald-600" />
-            <span className="text-[10px] font-bold text-emerald-600">Refresh your memory</span>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-);
+
 
 const ResurfacedCard = ({ type, time, title, summary, context }) => (
   <div className="bg-white rounded-[28px] p-6 border border-gray-100 card-hover group cursor-pointer relative overflow-hidden flex flex-col h-full shadow-sm">
@@ -137,11 +60,13 @@ const ResurfacedCard = ({ type, time, title, summary, context }) => (
 const KnowledgeGraph = () => {
   const svgRef = useRef(null);
   const wrapperRef = useRef(null);
+  const { collections, posts, loading, error, fetchHomeData } = useHome();
+
   const [selectedNode, setSelectedNode] = useState(null);
   const [activeFilter, setActiveFilter] = useState('Items');
   const [selectedTopic, setSelectedTopic] = useState('All');
 
-  const topics = ['All', 'AI Ethics', 'Design Systems'];
+  const topics = useMemo(() => ['All', ...collections.map(c => c.name)], [collections]);
 
   useEffect(() => {
     if (!svgRef.current || !wrapperRef.current) return;
@@ -175,18 +100,52 @@ const KnowledgeGraph = () => {
 
     const getTypeConfig = (type) => {
       switch (type) {
-        case 'article': return { color: '#4F46E5', icon: Globe };
+        case 'url': return { color: '#4F46E5', icon: Globe };
         case 'pdf': return { color: '#8B5CF6', icon: FileText };
-        case 'tweet': return { color: '#EC4899', icon: X };
-        case 'video': return { color: '#10B981', icon: Play };
+        case 'image': return { color: '#EC4899', icon: ImageIcon };
+        case 'youtube': return { color: '#10B981', icon: Play };
         default: return { color: '#6366F1', icon: FileText };
       }
     };
 
-    const topicData = temporaryData[selectedTopic] || temporaryData['All'];
+    const graphData = (() => {
+      const filteredPosts = selectedTopic === 'All'
+        ? posts
+        : posts.filter(p => p.folder === selectedTopic);
+
+      const nodes = filteredPosts.map(p => {
+        let source = 'Unknown';
+        try {
+          source = new URL(p.url).hostname;
+        } catch (e) {
+          source = p.type === 'image' || p.type === 'pdf' ? 'Upload' : 'External';
+        }
+
+        return {
+          id: p._id,
+          label: p.title,
+          type: p.type,
+          source: source,
+          tags: p.tags || [],
+          summary: p.summary
+        };
+      });
+
+      const links = [];
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const commonTags = nodes[i].tags.filter(tag => nodes[j].tags.includes(tag));
+          if (commonTags.length > 0) {
+            links.push({ source: nodes[i].id, target: nodes[j].id });
+          }
+        }
+      }
+      return { nodes, links };
+    })();
+
     const data = {
-      nodes: topicData.nodes.map(d => ({ ...d })),
-      links: topicData.links.map(d => ({ ...d }))
+      nodes: graphData.nodes.map(d => ({ ...d })),
+      links: graphData.links.map(d => ({ ...d }))
     };
 
     const simulation = d3.forceSimulation(data.nodes)
@@ -287,9 +246,28 @@ const KnowledgeGraph = () => {
     }
 
     return () => simulation.stop();
-  }, [selectedTopic]);
+  }, [selectedTopic, posts]);
 
-  const activeResurfaced = useMemo(() => ResurfacedData[selectedTopic] || ResurfacedData['All'], [selectedTopic]);
+  const graphNodesCount = useMemo(() => {
+    const filtered = selectedTopic === 'All'
+      ? posts
+      : posts.filter(p => p.folder === selectedTopic);
+    return filtered.length;
+  }, [posts, selectedTopic]);
+
+  const activeResurfaced = useMemo(() => {
+    const filtered = selectedTopic === 'All'
+      ? posts
+      : posts.filter(p => p.folder === selectedTopic);
+
+    return filtered.slice(0, 3).map(p => ({
+      type: p.type.toUpperCase(),
+      time: 'recently',
+      title: p.title,
+      summary: p.summary,
+      context: `Relevant to your ${p.folder} collection.`
+    }));
+  }, [posts, selectedTopic]);
 
   return (
     <div className="space-y-16 animate-fade-in pb-20">
@@ -336,10 +314,10 @@ const KnowledgeGraph = () => {
       <div className="relative bg-[#FAFAFB] rounded-[48px] border border-gray-100/50 shadow-2xl shadow-indigo-100/40 overflow-hidden min-h-[520px] animate-fade-in-up stagger-3" ref={wrapperRef}>
         <div className="absolute top-10 left-10 flex items-center gap-8 z-10 bg-white/80 backdrop-blur-xl px-6 py-3 rounded-[24px] border border-white shadow-xl shadow-indigo-100/20">
           {[
-            { color: 'bg-indigo-600', label: 'ARTICLES' },
+            { color: 'bg-indigo-600', label: 'URLS' },
             { color: 'bg-purple-600', label: 'PDFS' },
-            { color: 'bg-pink-600', label: 'TWEETS' },
-            { color: 'bg-emerald-600', label: 'VIDEOS' },
+            { color: 'bg-pink-600', label: 'IMAGES' },
+            { color: 'bg-emerald-600', label: 'YOUTUBE' },
           ].map(item => (
             <div key={item.label} className="flex items-center gap-3">
               <span className={`w-3 h-3 rounded-full ${item.color} shadow-sm ring-2 ring-white`}></span>
@@ -356,6 +334,42 @@ const KnowledgeGraph = () => {
         </div>
 
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #4F46E5 1.5px, transparent 0)', backgroundSize: '28px 28px' }}></div>
+
+        {loading && (
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/40 backdrop-blur-md">
+            <div className="w-16 h-16 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+            <p className="text-indigo-600 font-black tracking-widest text-xs uppercase animate-pulse">Syncing Neural Pathways...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-red-50/20 backdrop-blur-sm">
+            <div className="bg-white p-8 rounded-[32px] border border-red-100 shadow-2xl shadow-red-100/40 text-center max-w-md">
+              <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 mb-6 mx-auto">
+                <X className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-black text-gray-900 mb-2">Sync Error</h3>
+              <p className="text-gray-500 font-medium mb-6">{error}</p>
+              <button
+                onClick={fetchHomeData}
+                className="px-8 py-3 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-black transition-all"
+              >
+                Retry Sync
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!loading && !error && graphNodesCount === 0 && (
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center text-center">
+            <div className="w-24 h-24 bg-white rounded-[32px] shadow-xl border border-gray-50 flex items-center justify-center text-indigo-400 mb-8 animate-bounce">
+              <Network className="w-10 h-10" />
+            </div>
+            <h3 className="text-2xl font-black text-gray-900 mb-2 tracking-tight">Your knowledge is empty</h3>
+            <p className="text-gray-400 font-medium max-w-[280px] leading-relaxed">Start capturing ideas, PDFs, and links to see your neural ecosystem grow.</p>
+          </div>
+        )}
+
         <svg ref={svgRef} className="w-full h-full cursor-grab active:cursor-grabbing" style={{ height: '520px' }}></svg>
 
         {selectedNode && (
@@ -382,7 +396,12 @@ const KnowledgeGraph = () => {
               </div>
               <div className="mb-14 flex-1">
                 <h3 className="text-[13px] font-black text-gray-900 uppercase tracking-[0.2em] mb-5">AI Summary Notes</h3>
-                <div className="relative"><div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500/30 rounded-full"></div><p className="text-[16px] text-gray-700 leading-relaxed font-medium italic pl-8 py-2">"{selectedNode.summary}"</p></div>
+                <div className="relative">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500/30 rounded-full"></div>
+                  <p className="text-[16px] text-gray-700 leading-relaxed font-medium italic pl-8 py-2">
+                    {selectedNode.summary || "No automated summary available for this item yet."}
+                  </p>
+                </div>
               </div>
               <div className="space-y-4 pt-4 mt-auto">
                 <button className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[28px] text-[15px] font-black transition-all shadow-xl shadow-indigo-200">Open Original</button>
@@ -406,7 +425,7 @@ const KnowledgeGraph = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {activeResurfaced.map((card, idx) => (
-            <ResurfacedCard 
+            <ResurfacedCard
               key={idx}
               {...card}
             />
@@ -421,8 +440,17 @@ const KnowledgeGraph = () => {
           <MoreHorizontal className="w-6 h-6 text-gray-400" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <ClusterCard icon={Network} label="Machine Learning" count={24} description="Neural nets, LLMs, and Python scripts." colorClass="bg-indigo-600" bgClass="bg-indigo-400" />
-          <ClusterCard icon={Star} label="Design Systems" count={18} description="Atomic patterns and token architecture." colorClass="bg-purple-600" bgClass="bg-purple-400" />
+          {collections.slice(0, 4).map((c, idx) => (
+            <ClusterCard
+              key={c._id}
+              icon={idx % 2 === 0 ? Network : Star}
+              label={c.name}
+              count={c.itemCount || 0}
+              description={`Automated cluster for ${c.name} related insights.`}
+              colorClass={idx % 2 === 0 ? "bg-indigo-600" : "bg-purple-600"}
+              bgClass={idx % 2 === 0 ? "bg-indigo-400" : "bg-purple-400"}
+            />
+          ))}
         </div>
       </section>
     </div>
