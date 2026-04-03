@@ -28,6 +28,15 @@ const postSchema = new mongoose.Schema({
     url: {
         type: String,
         required: true
+    },
+    folder: {
+        type: String,
+        //required: true
+    },
+    folderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "folders",
+        //required: true
     }
 });
 

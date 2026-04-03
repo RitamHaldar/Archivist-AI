@@ -12,6 +12,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@imagekit/nodejs": "^7.3.0",
     "@langchain/mistralai": "^1.0.7",
     "@mozilla/readability": "^0.6.0",
     "axios": "^1.13.6",
@@ -26,6 +27,8 @@
     "langchain": "^1.2.39",
     "mongoose": "^9.3.3",
     "multer": "^2.1.1",
+    "node-id3": "^0.2.9",
+    "pdf-parse": "^2.4.5",
     "puppeteer": "^24.40.0",
     "tesseract.js": "^7.0.0",
     "zod": "^4.3.6"

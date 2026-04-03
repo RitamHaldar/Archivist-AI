@@ -1,12 +1,36 @@
 import { postModel } from "../models/post.model.js";
-import { generateTags, generateSummary, generateTitle } from "../services/ai.service.js";
+import { generateTags, generateSummary, generateTitle, generateEmbedding } from "../services/ai.service.js";
+import { imagetextExtractorandUpload, pdftextExtractor } from "../services/reader.service.js";
+import { uploadFile } from "../services/imageupload.service.js";
 
 export async function createPost(req, res) {
     const { url, type } = req.body
-    const summary = await generateSummary(url)
-    const title = await generateTitle(url)
-    const post = await postModel.create({ user: req.user.id, title, summary, url, type })
-    return res.status(201).json({ message: "Post created successfully", post })
+    const file = req.file
+    let post = null, summary = null, title = null, text = null
+    if (file) {
+        const buffer = file.buffer
+        if (file.mimetype.startsWith("image")) {
+            text = await imagetextExtractorandUpload(buffer)
+        }
+        else {
+            text = await pdftextExtractor(buffer)
+        }
+        const url = await uploadFile(file)
+        summary = await generateSummary(text)
+        title = await generateTitle(text)
+        console.log(title)
+        post = await postModel.create({ user: req.user.id, title, summary, url, type })
+    } else {
+        summary = await generateSummary(url)
+        title = await generateTitle(url)
+        post = await postModel.create({ user: req.user.id, title, summary, url, type })
+
+    }
+    const embedding = await generateEmbedding(title + " " + summary + " " + text)
+    res.status(201).json({
+        message: "Post created successfully",
+        post
+    })
 }
 
 export async function suggestTags(req, res) {

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { createPost, suggestTags, addTags, getPosts } from "../controllers/post.controller.js";
 import { Identifyuser } from "../middlewares/auth.middleware.js";
+import upload from "../middlewares/upload.middleware.js";
 
 const router = Router();
 
@@ -9,7 +10,7 @@ const router = Router();
  * @route POST /api/posts/create
  * @access private
  */
-router.post("/create", Identifyuser, createPost);
+router.post("/create", Identifyuser, upload.single("file"), createPost);
 
 /**
  * @description Suggest tags for content

@@ -1,8 +1,8 @@
-import { ChatMistralAI } from "@langchain/mistralai"
+import { ChatMistralAI, MistralAIEmbeddings } from "@langchain/mistralai"
 import { HumanMessage, SystemMessage, createAgent } from "langchain"
 import { tool } from "@langchain/core/tools"
 import { z } from "zod"
-import { imagetextExtractor } from "./Image.service.js"
+import { imagetextExtractorandUpload } from "./reader.service.js"
 import { extractContent } from "./websitescrap.service.js"
 import { getVideoDetails } from "./youtubedetails.service.js"
 
@@ -13,7 +13,7 @@ const model = new ChatMistralAI({
 
 const imagetool = tool(
     async ({ buffer }) => {
-        return await imagetextExtractor(buffer)
+        return await imagetextExtractorandUpload(buffer)
     },
     {
         name: "imagetextExtractor",
@@ -124,4 +124,13 @@ Rules:
         ]
     })
     return response.messages[response.messages.length - 1].content
+}
+
+export async function generateEmbedding(content) {
+    const embedding = new MistralAIEmbeddings({
+        apiKey: process.env.MISTRAL_API_KEY,
+        model: "mistral-embed"
+    })
+    const result = await embedding.embedQuery(content)
+    console.log(result)
 }
