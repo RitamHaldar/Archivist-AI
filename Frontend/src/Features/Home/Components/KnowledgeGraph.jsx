@@ -176,12 +176,18 @@ const KnowledgeGraph = () => {
     feMerge.append("feMergeNode").attr("in", "offsetBlur");
     feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
-    const getTypeConfig = (type) => {
+    const getTypeConfig = (p) => {
+      const type = (p.type || '').toLowerCase();
+      const domain = (p.source || '').toLowerCase();
+      
+      if (type === 'youtube' || domain.includes('youtube') || domain.includes('youtu.be')) {
+        return { color: '#10b981', glow: 'rgba(16, 185, 129, 0.4)', icon: Play };
+      }
+      
       switch (type) {
         case 'url': return { color: '#4F46E5', glow: 'rgba(79, 70, 229, 0.4)', icon: Globe };
         case 'pdf': return { color: '#8B5CF6', glow: 'rgba(139, 92, 246, 0.4)', icon: FileText };
         case 'image': return { color: '#EC4899', glow: 'rgba(236, 72, 153, 0.4)', icon: ImageIcon };
-        case 'youtube': return { color: '#ef4444', glow: 'rgba(239, 68, 68, 0.4)', icon: Play };
         default: return { color: '#6366F1', glow: 'rgba(99, 102, 241, 0.4)', icon: FileText };
       }
     };
@@ -264,7 +270,7 @@ const KnowledgeGraph = () => {
       .attr("width", d => Math.max(200, d.label.length * 8 + 100))
       .attr("x", d => -(Math.max(200, d.label.length * 8 + 100) / 2))
       .attr("y", -32)
-      .attr("fill", d => getTypeConfig(d.type).glow)
+      .attr("fill", d => getTypeConfig(d).glow)
       .attr("class", "blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300");
 
     nodeGroup.append("rect")
@@ -284,7 +290,7 @@ const KnowledgeGraph = () => {
       .attr("r", 15)
       .attr("cx", d => -(Math.max(200, d.label.length * 8 + 100) / 2) + 42)
       .attr("cy", 0)
-      .attr("fill", d => getTypeConfig(d.type).color)
+      .attr("fill", d => getTypeConfig(d).color)
       .attr("class", "shadow-sm");
 
     nodeGroup.append("circle")

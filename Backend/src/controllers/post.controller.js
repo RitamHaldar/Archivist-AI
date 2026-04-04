@@ -69,9 +69,9 @@ export async function createPost(req, res) {
     else {
         const existingcollections = await collectionModel.find({ user: req.user.id })
         const generatedcollectionName = await generateClustername(title + " " + summary + " " + text, existingcollections)
-        
+
         const matchByName = existingcollections.find(c => c.name.toLowerCase() === generatedcollectionName.toLowerCase());
-        
+
         if (matchByName) {
             collectionId = matchByName._id;
             collectionName = matchByName.name;

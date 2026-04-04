@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Search, Plus, Bell, X, Zap, LinkIcon, FileText, PlayCircle, Image as ImageIcon, Globe, Upload, ChevronRight, Sparkles } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { gsap } from 'gsap';
+import { useSelector } from 'react-redux';
 
 const Navbar = ({
   showAddOptions,
@@ -324,7 +325,7 @@ const Navbar = ({
               )}
             </div>
             <button className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white flex items-center justify-center overflow-hidden border-2 border-white shadow-sm hover:scale-105 transition-transform cursor-pointer">
-              <img src="https://ui-avatars.com/api/?name=User&background=random&color=fff" className="w-full h-full object-cover" alt="User" />
+              {useSelector((state) => state.auth.user.username)}
             </button>
           </div>
         </header>

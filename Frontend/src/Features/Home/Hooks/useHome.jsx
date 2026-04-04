@@ -51,10 +51,6 @@ export const useHome = () => {
         }
     };
 
-    useEffect(() => {
-        fetchHomeData();
-    }, []);
-
     return {
         collections,
         posts,

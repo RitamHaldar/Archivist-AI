@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Home as HomeIcon, Folder, Network, Tag, Star, Settings, HelpCircle
+  Home as HomeIcon, Folder, Network, Tag, Settings, HelpCircle, X, Sparkles
 } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, active, badge, onClick }) => (
@@ -15,45 +15,39 @@ const SidebarItem = ({ icon: Icon, label, active, badge, onClick }) => (
   </button>
 );
 
-const LibraryItem = ({ color, label }) => (
-  <button className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100/80 hover:text-gray-900 transition-all">
-    <div className={`w-2.5 h-2.5 rounded-full ${color}`}></div>
-    <span>{label}</span>
-  </button>
-);
-
-const Sidebar = ({ activeTab, setActiveTab }) => {
+const Sidebar = ({ activeTab, setActiveTab, setShowHelp = () => {} }) => {
   return (
-    <aside className="w-[280px] bg-[#FCFCFD] border-r border-gray-100 flex flex-col justify-between py-6 px-4 animate-fade-in-up">
-      <div>
-        <div className="flex items-center gap-3 px-3 mb-10">
-          <div className="w-9 h-9 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center bg-white text-indigo-600 font-bold text-lg select-none">
-            A
+    <>
+      <aside className="w-[280px] bg-[#FCFCFD] border-r border-gray-100 flex flex-col h-full py-8 px-6 animate-fade-in-up relative">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 px-2 mb-12">
+            <div className="w-10 h-10 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-center bg-white text-indigo-600 font-bold text-xl select-none">
+              A
+            </div>
+            <span className="font-extrabold text-[20px] tracking-tighter text-gray-900">Archivist AI</span>
           </div>
-          <span className="font-bold text-lg tracking-tight">Archivist AI</span>
+
+          <nav className="space-y-2 mb-8">
+            <SidebarItem icon={HomeIcon} label="Home" active={activeTab === 'Home'} onClick={() => setActiveTab('Home')} />
+            <SidebarItem icon={Folder} label="Collections" active={activeTab === 'Collections'} onClick={() => setActiveTab('Collections')} />
+            <SidebarItem icon={Network} label="Knowledge Graph" active={activeTab === 'Knowledge Graph'} onClick={() => setActiveTab('Knowledge Graph')} />
+            <SidebarItem icon={Tag} label="Tags" active={activeTab === 'Tags'} onClick={() => setActiveTab('Tags')} />
+          </nav>
         </div>
 
-        <nav className="space-y-1 mb-8">
-          <SidebarItem icon={HomeIcon} label="Home" active={activeTab === 'Home'} onClick={() => setActiveTab('Home')} />
-          <SidebarItem icon={Folder} label="Collections" active={activeTab === 'Collections'} onClick={() => setActiveTab('Collections')} />
-          <SidebarItem icon={Network} label="Knowledge Graph" active={activeTab === 'Knowledge Graph'} onClick={() => setActiveTab('Knowledge Graph')} />
-          <SidebarItem icon={Tag} label="Tags" active={activeTab === 'Tags'} onClick={() => setActiveTab('Tags')} />
-        </nav>
-
-        <div>
-          <h4 className="px-3 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 select-none">Your Library</h4>
-          <div className="space-y-1">
-            <LibraryItem color="bg-indigo-500" label="AI Ethics" />
-            <LibraryItem color="bg-pink-500" label="Design Theory" />
-          </div>
+        <div className="mt-auto">
+          <button 
+            onClick={() => setShowHelp(true)}
+            className="flex items-center gap-3 px-2 py-3 text-gray-400 hover:text-indigo-600 transition-all group duration-300 transform hover:translate-x-1"
+          >
+            <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
+              <HelpCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            </div>
+            <span className="text-[14px] font-bold tracking-tight">Help & Info</span>
+          </button>
         </div>
-      </div>
-
-      <div className="space-y-1 border-t border-gray-100 pt-4 mt-8">
-        <SidebarItem icon={Settings} label="Settings" />
-        <SidebarItem icon={HelpCircle} label="Help" />
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 };
 

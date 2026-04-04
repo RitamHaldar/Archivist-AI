@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import {
-  Link as LinkIcon, FileText, Copy, Sparkles, Clock, Zap, Network,
-  MoreHorizontal, Star, ArrowUpRight, Plus, Globe, PlayCircle, Image as ImageIcon, X
+  Link as LinkIcon, FileText, Sparkles, Clock, Zap, Network, Star, ArrowUpRight, Globe, PlayCircle, Image as ImageIcon, X
 } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { setSelectedCollection } from '../home.slice';
@@ -26,11 +25,11 @@ const PostDetailPanel = ({ post, onClose }) => {
 
   return (
     <>
-      <div 
+      <div
         className="fixed inset-0 bg-black/5 backdrop-blur-[1px] z-[30] animate-fade-in"
         onClick={onClose}
       />
-      
+
       <div className="w-[420px] bg-white border border-gray-100 h-[56%] flex flex-col fixed right-6 top-6 shadow-[-12px_0_32px_-12px_rgba(0,0,0,0.05)] animate-slide-in-right z-40 overflow-y-auto custom-scrollbar rounded-[32px]">
         <div className="p-6 sticky top-0 bg-white/95 backdrop-blur-md z-10 border-b border-gray-50 flex items-center justify-between">
           <h2 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
@@ -45,9 +44,9 @@ const PostDetailPanel = ({ post, onClose }) => {
           <div className="flex items-center gap-5 mb-8">
             <div className={`w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm`}>
               {post.type === 'pdf' ? <FileText className="w-7 h-7" /> :
-               post.type === 'image' ? <ImageIcon className="w-7 h-7" /> :
-               post.type === 'youtube' ? <PlayCircle className="w-7 h-7" /> :
-               <Globe className="w-7 h-7" />}
+                post.type === 'image' ? <ImageIcon className="w-7 h-7" /> :
+                  post.type === 'youtube' ? <PlayCircle className="w-7 h-7" /> :
+                    <Globe className="w-7 h-7" />}
             </div>
             <div>
               <h1 className="text-[22px] font-black text-gray-900 leading-tight tracking-tight">{post.title}</h1>
@@ -60,7 +59,7 @@ const PostDetailPanel = ({ post, onClose }) => {
               <h3 className="text-[11px] font-black text-gray-900 uppercase tracking-[0.15em] mb-3">AI Contextual Analysis</h3>
               <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
                 <p className="text-[13px] text-indigo-900 font-medium leading-relaxed">
-                   This node was resurfaced based on its high semantic relevance to your active research in the <span className="font-bold">"{post.folder || 'Unsorted'}"</span> collection. 
+                  This node was resurfaced based on its high semantic relevance to your active research in the <span className="font-bold">"{post.folder || 'Unsorted'}"</span> collection.
                 </p>
               </div>
             </div>
@@ -76,7 +75,7 @@ const PostDetailPanel = ({ post, onClose }) => {
               </div>
             </div>
 
-            <a 
+            <a
               href={post.url}
               target="_blank"
               rel="noopener noreferrer"
@@ -93,10 +92,12 @@ const PostDetailPanel = ({ post, onClose }) => {
 };
 
 const Home = ({ setActiveTab }) => {
-  const { posts, loading } = useHome();
+  const { posts, loading, fetchHomeData } = useHome();
   const dispatch = useDispatch();
   const [selectedPost, setSelectedPost] = React.useState(null);
-
+  useEffect(() => {
+    fetchHomeData();
+  }, []);
   const savedThisWeek = useMemo(() => {
     if (!posts) return 0;
     const sevenDaysAgo = new Date();
@@ -161,8 +162,8 @@ const Home = ({ setActiveTab }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {resurfacedPosts.length > 0 ? resurfacedPosts.map((post, idx) => (
-            <div 
-              key={post._id} 
+            <div
+              key={post._id}
               onClick={() => setSelectedPost(post)}
               className="bg-white rounded-[24px] p-6 subtle-ring card-hover flex flex-col justify-between min-h-[220px] group relative overflow-hidden cursor-pointer"
             >
@@ -197,7 +198,7 @@ const Home = ({ setActiveTab }) => {
         <section className="lg:col-span-2">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-[19px] font-bold">Knowledge Clusters</h2>
-            <button 
+            <button
               onClick={() => setActiveTab('Collections')}
               className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
             >
@@ -207,8 +208,8 @@ const Home = ({ setActiveTab }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {knowledgeClusters.map((cluster, idx) => (
-              <div 
-                key={cluster.name} 
+              <div
+                key={cluster.name}
                 onClick={() => {
                   dispatch(setSelectedCollection(cluster));
                   setActiveTab('Collections');
@@ -251,7 +252,7 @@ const Home = ({ setActiveTab }) => {
               <p className="font-bold text-[13px] text-gray-900">{posts.length} Active Nodes</p>
             </div>
 
-            <button 
+            <button
               onClick={() => setActiveTab('Knowledge Graph')}
               className="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold px-4 py-2.5 rounded-full shadow transition-colors z-10 uppercase tracking-widest"
             >
@@ -292,7 +293,7 @@ const Home = ({ setActiveTab }) => {
         </section>
       </div>
 
-      <PostDetailPanel 
+      <PostDetailPanel
         post={selectedPost}
         onClose={() => setSelectedPost(null)}
       />
