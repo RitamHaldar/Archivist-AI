@@ -78,7 +78,6 @@ const Register = () => {
 
     return (
         <div ref={bgRef} className="min-h-screen flex items-center justify-center bg-[#FDFDFE] relative overflow-hidden">
-            {/* Animated Background Blobs */}
             <div className="absolute top-[-15%] right-[-10%] w-[50%] h-[50%] bg-blue-100 rounded-full blur-[140px] opacity-60 animate-pulse" />
             <div className="absolute bottom-[-10%] left-[-10%] w-[45%] h-[45%] bg-emerald-100 rounded-full blur-[140px] opacity-60 animate-pulse" style={{ animationDelay: '1.5s' }} />
 

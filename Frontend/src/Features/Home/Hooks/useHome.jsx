@@ -1,37 +1,66 @@
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import * as homeApi from "../Services/home.api";
-import { setCollections, setPosts, setLoading, setError } from "../home.slice";
+import { createPost, getCollections, getPosts } from "../Services/home.api";
+import { setCollections, setPosts, setLoading, setError, addPost } from "../home.slice";
 
 export const useHome = () => {
     const dispatch = useDispatch();
     const { collections, posts, loading, error } = useSelector((state) => state.home);
 
-    const fetchHomeData = useCallback(async () => {
+    const fetchHomeData = async () => {
         dispatch(setLoading(true));
         try {
-            const collectionsData = await homeApi.getCollections();
-            const postsData = await homeApi.getPosts();
-            
-            dispatch(setCollections(collectionsData.collections));
-            dispatch(setPosts(postsData.posts));
+            const collectionsData = await getCollections();
+            const postsData = await getPosts();
+
+            if (collectionsData?.collections) dispatch(setCollections(collectionsData.collections));
+            if (postsData?.posts) dispatch(setPosts(postsData.posts));
             dispatch(setError(null));
         } catch (err) {
             dispatch(setError(err.message || "Failed to fetch neural pathways"));
         } finally {
             dispatch(setLoading(false));
         }
-    }, [dispatch]);
+    };
+
+    const handleCreatePost = async (payload) => {
+        dispatch(setLoading(true));
+        try {
+            const formData = new FormData();
+            formData.append('url', payload.content);
+            formData.append('type', payload.type);
+
+            if (payload.file) {
+                formData.append('file', payload.file);
+            }
+
+            const response = await createPost(formData);
+
+            if (response?.post) {
+                dispatch(addPost(response.post));
+                fetchHomeData();
+            }
+            dispatch(setError(null));
+            return response;
+        } catch (err) {
+            const errorMessage = err?.message || "Failed to create post";
+            dispatch(setError(errorMessage));
+            throw err;
+        } finally {
+            dispatch(setLoading(false));
+        }
+    };
 
     useEffect(() => {
         fetchHomeData();
-    }, [fetchHomeData]);
+    }, []);
 
     return {
         collections,
         posts,
         loading,
         error,
-        fetchHomeData
+        fetchHomeData,
+        handleCreatePost
     };
 };

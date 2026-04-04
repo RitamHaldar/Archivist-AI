@@ -11,7 +11,6 @@ import {
 import { gsap } from 'gsap';
 
 
-// Utility for high-end relative time formatting
 const formatTimeAgo = (dateString) => {
   if (!dateString) return 'recently';
   const date = new Date(dateString);
@@ -97,7 +96,6 @@ const KnowledgeGraph = () => {
 
   const drawerRef = useRef(null);
 
-  // Premium Side Menu Animation (GSAP)
   useEffect(() => {
     if (selectedNode && drawerRef.current) {
       const ctx = gsap.context(() => {
@@ -151,13 +149,11 @@ const KnowledgeGraph = () => {
       .on("wheel.zoom", null)
       .on("dblclick.zoom", null);
 
-    // Zoom Handlers for global access
     window.graphZoomIn = () => svg.transition().duration(500).call(zoom.scaleBy, 1.3);
     window.graphZoomOut = () => svg.transition().duration(500).call(zoom.scaleBy, 0.7);
 
     const defs = svg.append("defs");
 
-    // Glow Filter
     const filter = defs.append("filter")
       .attr("id", "soft-glow")
       .attr("height", "300%")
@@ -218,7 +214,6 @@ const KnowledgeGraph = () => {
       const links = [];
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
-          // Connect nodes that belong to the same Collection hub
           if (nodes[i].folder === nodes[j].folder && nodes[i].folder !== 'Unsorted') {
             links.push({ source: nodes[i].id, target: nodes[j].id });
           }
@@ -227,7 +222,6 @@ const KnowledgeGraph = () => {
       return { nodes, links };
     })();
 
-    // Make nodes available for resurfaced cards interaction
     window.__currentNodes = graphData.nodes;
 
     const data = {
@@ -241,7 +235,6 @@ const KnowledgeGraph = () => {
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collide", d3.forceCollide().radius(50));
 
-    // Simple Static Links
     const linkPaths = mainG.append("g")
       .selectAll("line")
       .data(data.links)
@@ -264,7 +257,6 @@ const KnowledgeGraph = () => {
         event.stopPropagation();
       });
 
-    // Node Aura/Glow
     nodeGroup.append("rect")
       .attr("rx", 30)
       .attr("ry", 30)
@@ -275,7 +267,6 @@ const KnowledgeGraph = () => {
       .attr("fill", d => getTypeConfig(d.type).glow)
       .attr("class", "blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300");
 
-    // Main Node Body (Glass Pill)
     nodeGroup.append("rect")
       .attr("rx", 26)
       .attr("ry", 26)
@@ -289,7 +280,6 @@ const KnowledgeGraph = () => {
       .style("filter", "drop-shadow(0 8px 16px rgba(0,0,0,0.06))")
       .attr("class", "transition-all duration-300 group-hover:stroke-indigo-400 group-hover:-translate-y-1");
 
-    // Icon Area
     nodeGroup.append("circle")
       .attr("r", 15)
       .attr("cx", d => -(Math.max(200, d.label.length * 8 + 100) / 2) + 42)
@@ -297,14 +287,12 @@ const KnowledgeGraph = () => {
       .attr("fill", d => getTypeConfig(d.type).color)
       .attr("class", "shadow-sm");
 
-    // Custom Icon (simple dot representation)
     nodeGroup.append("circle")
       .attr("r", 4)
       .attr("cx", d => -(Math.max(200, d.label.length * 8 + 100) / 2) + 42)
       .attr("cy", 0)
       .attr("fill", "#ffffff");
 
-    // Label Text
     nodeGroup.append("text")
       .text(d => d.label)
       .attr("x", d => -(Math.max(200, d.label.length * 8 + 100) / 2) + 72)
@@ -314,7 +302,6 @@ const KnowledgeGraph = () => {
       .style("fill", "#111827")
       .style("pointer-events", "none");
 
-    // Source Metadata Text
     nodeGroup.append("text")
       .text(d => d.source.toUpperCase())
       .attr("x", d => -(Math.max(200, d.label.length * 8 + 100) / 2) + 72)
@@ -360,7 +347,6 @@ const KnowledgeGraph = () => {
     };
   }, [selectedTopic, posts, isFullScreen]);
 
-  // Full Screen Handler
   const toggleFullScreen = () => {
     if (!wrapperRef.current) return;
     if (!document.fullscreenElement) {
@@ -402,7 +388,6 @@ const KnowledgeGraph = () => {
 
   return (
     <div ref={topRef} className="space-y-16 animate-fade-in pb-20">
-      {/* Header Section */}
       <div className="flex flex-col gap-8">
         <div className="flex items-start justify-between">
           <div className="animate-fade-in-up stagger-1">
@@ -411,7 +396,6 @@ const KnowledgeGraph = () => {
           </div>
         </div>
 
-        {/* Topic Selector */}
         <div className="flex items-center gap-3 animate-fade-in-up stagger-2">
           <span className="text-xs font-black text-gray-400 uppercase tracking-widest mr-2">Explore Topics:</span>
           {topics.map(topic => (
@@ -429,10 +413,8 @@ const KnowledgeGraph = () => {
         </div>
       </div>
 
-      {/* Graph Area Card - Reverted Outer Styling */}
       <div className={`relative bg-[#FAFAFB] border border-gray-100/50 shadow-2xl shadow-indigo-100/40 overflow-hidden transition-all duration-500 animate-fade-in-up stagger-3 ${isFullScreen ? 'rounded-none w-screen h-screen' : 'rounded-[48px] min-h-[520px]'}`} ref={wrapperRef}>
         
-        {/* Reverted Node Legends */}
         <div className={`absolute top-10 left-10 flex items-center gap-8 z-10 bg-white/80 backdrop-blur-xl px-6 py-3 rounded-[24px] border border-white shadow-xl shadow-indigo-100/20 transition-all ${isFullScreen ? 'scale-125' : ''}`}>
           {[
             { color: 'bg-indigo-600', label: 'URLS' },
@@ -447,7 +429,6 @@ const KnowledgeGraph = () => {
           ))}
         </div>
 
-        {/* Reverted Floating Controls */}
         <div className={`absolute bottom-10 left-10 flex flex-col gap-3 z-10 transition-all ${isFullScreen ? 'scale-125' : ''}`}>
           <button onClick={() => window.graphZoomIn?.()} className="w-12 h-12 bg-white/90 backdrop-blur shadow-xl border border-gray-50 rounded-[20px] flex items-center justify-center text-gray-400 hover:text-indigo-600 transition-all hover:scale-110 active:scale-95 group"><Plus className="w-5 h-5 group-hover:scale-110" /></button>
           <button onClick={() => window.graphZoomOut?.()} className="w-12 h-12 bg-white/90 backdrop-blur shadow-xl border border-gray-50 rounded-[20px] flex items-center justify-center text-gray-400 hover:text-indigo-600 transition-all hover:scale-110 active:scale-95 group"><Minus className="w-5 h-5 group-hover:scale-110" /></button>
@@ -468,7 +449,6 @@ const KnowledgeGraph = () => {
         <svg ref={svgRef} className="w-full h-full cursor-grab active:cursor-grabbing" style={{ height: isFullScreen ? '100%' : '520px' }}></svg>
       </div>
 
-      {/* Resurfaced for You Section */}
       <section className="animate-fade-in-up stagger-4">
         <div className="flex items-center justify-between mb-8 px-2">
           <div className="flex items-center gap-4">
@@ -496,7 +476,6 @@ const KnowledgeGraph = () => {
         </div>
       </section>
 
-      {/* Knowledge Clusters Section */}
       <section className="animate-fade-in-up stagger-5">
         <div className="flex items-center justify-between mb-8 px-2">
           <h2 className="text-[32px] font-black text-gray-900 tracking-tight">Your Knowledge Clusters</h2>
@@ -519,10 +498,8 @@ const KnowledgeGraph = () => {
         </div>
       </section>
 
-      {/* Full-Height Node Detail Drawer (Relocated out of graph container) */}
       {selectedNode && (
         <>
-          {/* Subtle Backdrop - Animates in with Drawer */}
           <div 
             className="fixed inset-0 bg-black/10 backdrop-blur-[2px] z-[90] animate-fade-in"
             onClick={() => {
@@ -535,13 +512,11 @@ const KnowledgeGraph = () => {
               ref={drawerRef}
               className="w-full h-full bg-white shadow-[-40px_0_100px_-20px_rgba(0,0,0,0.15)] rounded-[40px] border border-gray-100 overflow-hidden flex flex-col pointer-events-auto relative"
             >
-              {/* Premium Header with Visual Flare */}
               <div ref={drawerHeaderRef} className="h-52 bg-gray-900 relative overflow-hidden shrink-0">
                 <div className="absolute inset-0 opacity-40 mix-blend-overlay" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #fff 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-600/20 to-purple-600/20"></div>
                 
                 <div className="relative z-10 flex flex-col justify-between h-full p-8">
-                  {/* Top Row: Badge & Close Button */}
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10">
@@ -561,7 +536,6 @@ const KnowledgeGraph = () => {
                     </button>
                   </div>
 
-                  {/* Bottom Row: Metadata & Title */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-4 text-white/40">
                       <div className="flex items-center gap-2">
@@ -574,10 +548,8 @@ const KnowledgeGraph = () => {
                 </div>
               </div>
 
-              {/* Drawer Content - Enhanced Typography */}
               <div ref={drawerContentRef} className="flex-1 overflow-y-auto px-8 py-10 space-y-10 scrollbar-hide">
                 
-                {/* AI Summary Section */}
                 <div className="relative group/insights">
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center">
@@ -593,7 +565,6 @@ const KnowledgeGraph = () => {
                   </div>
                 </div>
 
-                {/* Tags Section */}
                 <div>
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-7 h-7 rounded-lg bg-purple-50 flex items-center justify-center">
@@ -610,7 +581,6 @@ const KnowledgeGraph = () => {
                   </div>
                 </div>
 
-                {/* Actions Section */}
                 <div className="pt-6 grid grid-cols-1 gap-3 pb-10">
                   <a
                     href={selectedNode.url}

@@ -6,9 +6,11 @@ import Sidebar from '../Components/Sidebar';
 import KnowledgeGraph from '../Components/KnowledgeGraph';
 import Tags from '../Components/Tags';
 import { gsap } from 'gsap';
+import { useHome } from '../Hooks/useHome';
 
 
 const Homepage = () => {
+  const { handleCreatePost, loading } = useHome();
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showDiscovery, setShowDiscovery] = useState(false);
   const [activeTab, setActiveTab] = useState('Home');
@@ -37,7 +39,7 @@ const Homepage = () => {
         );
     });
     return () => ctx.revert();
-  }, [activeTab]); // Restart animation when tab changes if desired, or just once
+  }, [activeTab]);
 
   return (
     <div className="flex h-screen bg-[#FDFDFE] font-sans text-gray-900 overflow-hidden selection:bg-indigo-100 selection:text-indigo-900">
@@ -46,7 +48,6 @@ const Homepage = () => {
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-y-auto overflow-x-hidden relative scroll-smooth bg-white/50">
 
         <div ref={navbarRef} className="z-10">
@@ -55,10 +56,11 @@ const Homepage = () => {
             setShowAddOptions={setShowAddOptions}
             showDiscovery={showDiscovery}
             setShowDiscovery={setShowDiscovery}
+            createPost={handleCreatePost}
+            isLoading={loading}
           />
         </div>
 
-        {/* Content Body */}
         <div ref={contentRef} className="flex-1 p-8 max-w-[1200px] mx-auto w-full space-y-10 pb-20">
 
           {activeTab === 'Home' && (

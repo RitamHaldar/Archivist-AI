@@ -19,7 +19,6 @@ const Login = () => {
 
     useEffect(() => {
         const ctx = gsap.context(() => {
-            // Initial animation
             const tl = gsap.timeline();
             tl.fromTo(bgRef.current,
                 { opacity: 0 },
@@ -52,7 +51,6 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Pass identifier as both username and email to the backend
             await handleLogin(formData.identifier, formData.identifier, formData.password);
             gsap.to(cardRef.current, {
                 y: -40,
@@ -73,7 +71,6 @@ const Login = () => {
 
     return (
         <div ref={bgRef} className="min-h-screen flex items-center justify-center bg-[#FDFDFE] relative overflow-hidden">
-            {/* Animated Background Blobs */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-100 rounded-full blur-[120px] opacity-60 animate-pulse" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-violet-100 rounded-full blur-[120px] opacity-60 animate-pulse" style={{ animationDelay: '1s' }} />
 

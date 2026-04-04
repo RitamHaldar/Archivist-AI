@@ -25,7 +25,6 @@ const LibraryItem = ({ color, label }) => (
 const Sidebar = ({ activeTab, setActiveTab }) => {
   return (
     <aside className="w-[280px] bg-[#FCFCFD] border-r border-gray-100 flex flex-col justify-between py-6 px-4 animate-fade-in-up">
-      {/* Logo area */}
       <div>
         <div className="flex items-center gap-3 px-3 mb-10">
           <div className="w-9 h-9 rounded-xl border border-gray-200 shadow-sm flex items-center justify-center bg-white text-indigo-600 font-bold text-lg select-none">
@@ -41,7 +40,6 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
           <SidebarItem icon={Tag} label="Tags" active={activeTab === 'Tags'} onClick={() => setActiveTab('Tags')} />
         </nav>
 
-        {/* YOUR LIBRARY */}
         <div>
           <h4 className="px-3 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 select-none">Your Library</h4>
           <div className="space-y-1">
@@ -51,7 +49,6 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         </div>
       </div>
 
-      {/* Bottom Actions */}
       <div className="space-y-1 border-t border-gray-100 pt-4 mt-8">
         <SidebarItem icon={Settings} label="Settings" />
         <SidebarItem icon={HelpCircle} label="Help" />

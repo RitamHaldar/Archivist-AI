@@ -143,9 +143,10 @@ export async function generateClustername(content, existingcollections) {
     
     Categorization Rules:
     - The name should be professional, short (1-2 words), and represent a broad but distinct topic (e.g., 'Software Engineering', 'Neuroscience', 'Finance', 'System Design').
-    - If the content is technical/code-related but doesn't perfectly fit an existing language folder, use a generic name like 'Programming' or 'Development'.
-    - DO NOT use the same name as any existing cluster listed above.
-    - Differentiate between related but distinct technologies (e.g., do NOT put 'Java' in a 'Python' cluster if you're creating a new one).
+    - If the content is technical/code-related, use the specific programming language name (e.g., 'Java', 'Python', 'React') only if it is the primary focus.
+    - If it's a general technical resource, use a descriptive name like 'Software Engineering' or 'Data Science'.
+    - If an existing cluster from the list above is a PERFECT fit, return that EXACT name.
+    - Differentiate between related but distinct technologies (e.g., do NOT put 'Java' in a 'Python' cluster).
     - Return ONLY the name.
 `
     const response = await agent.invoke({

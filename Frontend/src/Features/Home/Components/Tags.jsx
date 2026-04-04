@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import { useHome } from '../Hooks/useHome';
 
-// Dynamic Color Mapping for Premium Visuals
 const TAG_STYLES = [
   { color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100', icon: Brain },
   { color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100', icon: Hash },
@@ -55,7 +54,6 @@ const TagAnalysisPanel = ({ tag, posts, onClose }) => {
   const style = getTagStyle(tag.name);
   const Icon = style.icon;
 
-  // Find common pairs (tags that share the same posts)
   const commonPairs = Array.from(new Set(
     posts.flatMap(p => p.tags)
       .filter(t => t !== tag.name)
@@ -63,7 +61,6 @@ const TagAnalysisPanel = ({ tag, posts, onClose }) => {
 
   return (
     <>
-      {/* Subtle Backdrop - Animates in with Panel */}
       <div 
         className="fixed inset-0 bg-black/5 backdrop-blur-[1px] z-[30] animate-fade-in"
         onClick={onClose}
@@ -162,7 +159,6 @@ const Tags = () => {
   const [lastSelectedTag, setLastSelectedTag] = useState(null);
   const topRef = useRef(null);
 
-  // Extract unique tags and their frequency from actual posts
   const availableTags = useMemo(() => {
     if (!posts) return [];
     
@@ -183,13 +179,11 @@ const Tags = () => {
       .sort((a, b) => b.count - a.count);
   }, [posts]);
 
-  // Filter tags based on search
   const filteredTags = useMemo(() =>
     availableTags.filter(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase())),
     [availableTags, searchQuery]
   );
 
-  // Get posts for the selected tag analysis
   const matchingPosts = useMemo(() => {
     if (!selectedTag || !posts) return [];
     return posts.filter(p => p.tags?.includes(selectedTag.name));
@@ -211,11 +205,9 @@ const Tags = () => {
 
   return (
     <div ref={topRef} className="flex relative -mx-8 -my-8 bg-white/50 backdrop-blur-sm">
-      {/* Main Content Area */}
       <div className={`flex-1 p-10 transition-all duration-500 ${selectedTag ? 'pr-[400px]' : ''}`}>
         <div className="max-w-[1100px] mx-auto">
 
-          {/* Header */}
           <div className="flex items-end justify-between mb-12 animate-fade-in-up stagger-1">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -243,7 +235,6 @@ const Tags = () => {
             </div>
           </div>
 
-          {/* Search and Filters */}
           <div className="flex items-center gap-4 mb-10 animate-fade-in-up stagger-2">
             <div className="flex-1 relative group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
@@ -266,7 +257,6 @@ const Tags = () => {
             </div>
           </div>
 
-          {/* Empty State */}
           {!loading && availableTags.length === 0 && (
             <div className="flex flex-col items-center justify-center py-32 text-center">
               <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center mb-6">
@@ -277,7 +267,6 @@ const Tags = () => {
             </div>
           )}
 
-          {/* Tags Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
             {filteredTags.map((tag, i) => (
               <div key={tag.name} className="animate-fade-in-up" style={{ animationDelay: `${(i + 3) * 80}ms` }}>
@@ -289,7 +278,6 @@ const Tags = () => {
         </div>
       </div>
 
-      {/* Analysis Panel */}
       <TagAnalysisPanel 
         tag={selectedTag} 
         posts={matchingPosts} 

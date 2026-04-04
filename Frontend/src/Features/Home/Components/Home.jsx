@@ -97,7 +97,6 @@ const Home = ({ setActiveTab }) => {
   const dispatch = useDispatch();
   const [selectedPost, setSelectedPost] = React.useState(null);
 
-  // AI Insight: Items saved this week
   const savedThisWeek = useMemo(() => {
     if (!posts) return 0;
     const sevenDaysAgo = new Date();
@@ -105,7 +104,6 @@ const Home = ({ setActiveTab }) => {
     return posts.filter(post => new Date(post.createdAt) > sevenDaysAgo).length;
   }, [posts]);
 
-  // Resurfaced: 3 random items
   const resurfacedPosts = useMemo(() => {
     if (!posts || posts.length === 0) return [];
     return [...posts]
@@ -113,7 +111,6 @@ const Home = ({ setActiveTab }) => {
       .slice(0, 3);
   }, [posts]);
 
-  // Knowledge Clusters: Folders and their counts
   const knowledgeClusters = useMemo(() => {
     if (!posts) return [];
     const folderMap = new Map();
@@ -125,7 +122,6 @@ const Home = ({ setActiveTab }) => {
     return Array.from(folderMap.entries()).map(([name, count]) => ({ name, count })).slice(0, 2);
   }, [posts]);
 
-  // Recent Activity: Latest 4 items
   const recentActivity = useMemo(() => {
     if (!posts) return [];
     return [...posts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 4);
@@ -141,7 +137,6 @@ const Home = ({ setActiveTab }) => {
 
   return (
     <>
-      {/* Welcome Section */}
       <section className="animate-fade-in-up stagger-1">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 flex items-center gap-3">
@@ -149,7 +144,6 @@ const Home = ({ setActiveTab }) => {
           </h1>
         </div>
 
-        {/* AI Insight Banner */}
         <div className="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-4 flex items-center gap-3 text-indigo-900 hover:bg-indigo-50 transition-colors cursor-default mt-2 w-max pr-8">
           <Sparkles className="w-5 h-5 text-indigo-500" />
           <p className="font-medium text-sm">
@@ -158,7 +152,6 @@ const Home = ({ setActiveTab }) => {
         </div>
       </section>
 
-      {/* Resurfaced for You */}
       <section className="animate-fade-in-up stagger-2">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-[19px] font-bold flex items-center gap-2">
@@ -200,9 +193,7 @@ const Home = ({ setActiveTab }) => {
         </div>
       </section>
 
-      {/* Grid: Knowledge Clusters & Connections */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in-up stagger-3">
-        {/* Knowledge Clusters */}
         <section className="lg:col-span-2">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-[19px] font-bold">Knowledge Clusters</h2>
@@ -238,7 +229,6 @@ const Home = ({ setActiveTab }) => {
           </div>
         </section>
 
-        {/* Connections Decorative */}
         <section className="lg:col-span-1">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-[19px] font-bold">Connections</h2>
@@ -271,7 +261,6 @@ const Home = ({ setActiveTab }) => {
         </section>
       </div>
 
-      {/* Recent Activity */}
       <div className="pt-6 animate-fade-in-up stagger-4 relative">
         <section className="space-y-4">
           <h2 className="text-[19px] font-bold mb-6">Recent Activity</h2>
@@ -303,7 +292,6 @@ const Home = ({ setActiveTab }) => {
         </section>
       </div>
 
-      {/* Post Detail Panel */}
       <PostDetailPanel 
         post={selectedPost}
         onClose={() => setSelectedPost(null)}

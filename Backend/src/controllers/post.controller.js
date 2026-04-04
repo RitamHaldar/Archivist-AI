@@ -41,7 +41,7 @@ export async function createPost(req, res) {
         includeMetadata: true
     })
     const bestMatch = result.matches?.[0];
-    if (bestMatch && bestMatch.score >= 0.85) {
+    if (bestMatch && bestMatch.score >= 0.94) {
         const collection = await collectionModel.findById(bestMatch.id)
         const oldcollectionembedding = collection.centroidEmbedding
         const newcollectionembedding = oldcollectionembedding.map((v, i) => {
@@ -69,22 +69,32 @@ export async function createPost(req, res) {
     else {
         const existingcollections = await collectionModel.find({ user: req.user.id })
         const generatedcollectionName = await generateClustername(title + " " + summary + " " + text, existingcollections)
-        const newcollection = await collectionModel.create({ user: req.user.id, name: generatedcollectionName, centroidEmbedding: embedding, itemCount: 1 })
-        collectionId = newcollection._id;
-        collectionName = newcollection.name;
-        await index.upsert({
-            records: [
-                {
-                    id: newcollection._id.toString(),
-                    values: embedding,
-                    metadata: {
-                        userId: req.user.id,
-                        type: "collection",
-                        collectionname: collectionName
+        
+        const matchByName = existingcollections.find(c => c.name.toLowerCase() === generatedcollectionName.toLowerCase());
+        
+        if (matchByName) {
+            collectionId = matchByName._id;
+            collectionName = matchByName.name;
+            matchByName.itemCount += 1;
+            await matchByName.save();
+        } else {
+            const newcollection = await collectionModel.create({ user: req.user.id, name: generatedcollectionName, centroidEmbedding: embedding, itemCount: 1 })
+            collectionId = newcollection._id;
+            collectionName = newcollection.name;
+            await index.upsert({
+                records: [
+                    {
+                        id: newcollection._id.toString(),
+                        values: embedding,
+                        metadata: {
+                            userId: req.user.id,
+                            type: "collection",
+                            collectionname: collectionName
+                        }
                     }
-                }
-            ]
-        });
+                ]
+            });
+        }
     }
     post = await postModel.create({ user: req.user.id, title, summary, tags, url, type, folder: collectionName, folderId: collectionId })
     await index.upsert({
@@ -106,21 +116,6 @@ export async function createPost(req, res) {
         collectionName
     })
 }
-
-/**export async function suggestTags(req, res) {
-    const { url } = req.body
-    const tags = await generateTags(url)
-    return res.status(200).json({ message: "Tags suggested successfully", tags })
-}
-
-export async function addTags(req, res) {
-    const { postId, tags } = req.body
-    const post = await postModel.findById(postId)
-    post.tags.push(...tags)
-    await post.save()
-    return res.status(200).json({ message: "Tags added successfully", post })
-}
-*/
 export async function getPosts(req, res) {
     const posts = await postModel.find({ user: req.user.id })
     return res.status(200).json({ message: "Posts fetched successfully", posts })

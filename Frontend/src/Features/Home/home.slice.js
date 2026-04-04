@@ -19,6 +19,9 @@ const homeSlice = createSlice({
         setSelectedCollection: (state, action) => {
             state.selectedCollection = action.payload;
         },
+        addPost: (state, action) => {
+            state.posts = [action.payload, ...state.posts];
+        },
         setLoading: (state, action) => {
             state.loading = action.payload;
         },
@@ -28,5 +31,5 @@ const homeSlice = createSlice({
     },
 });
 
-export const { setCollections, setPosts, setSelectedCollection, setLoading, setError } = homeSlice.actions;
+export const { setCollections, setPosts, setSelectedCollection, setLoading, setError, addPost } = homeSlice.actions;
 export default homeSlice.reducer;
