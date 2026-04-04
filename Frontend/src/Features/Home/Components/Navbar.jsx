@@ -300,7 +300,7 @@ const Navbar = ({
               className="block w-full pl-11 pr-20 py-2.5 bg-[#F5F5F7] border border-transparent rounded-2xl text-sm placeholder-gray-500 focus:outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-200 transition-all duration-300"
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span className="text-[10px] font-bold text-gray-400 bg-white shadow-sm border border-gray-100 px-2 py-1 rounded-lg">CMD + K</span>
+              <span className="text-[10px] font-bold text-gray-400 bg-white shadow-sm border border-gray-100 px-2.5 py-1 rounded-lg tracking-wider">ENTER</span>
             </div>
           </form>
 
