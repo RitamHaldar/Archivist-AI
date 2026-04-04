@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: "https://archivist-ai.onrender.com",
     withCredentials: true,
 });
 
@@ -26,6 +26,15 @@ export const createPost = async (formData) => {
 export const getCollections = async () => {
     try {
         const response = await api.get("/api/collections/get-collections");
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};
+
+export const semanticSearch = async (query) => {
+    try {
+        const response = await api.post("/api/posts/semantic-search", { query });
         return response.data;
     } catch (error) {
         throw error.response?.data || error.message;

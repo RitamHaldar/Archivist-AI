@@ -1,16 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuth } from '../Hooks/useAuth';
-import { User, Mail, Lock, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Sparkles } from 'lucide-react';
 import { gsap } from 'gsap';
+import { useSelector } from 'react-redux';
 
 const Login = () => {
+    const { handleLogin } = useAuth();
+    const navigate = useNavigate();
+    const user = useSelector((state) => state.auth.user);
+    if (user) {
+        navigate('/');
+    }
     const [formData, setFormData] = useState({
         identifier: '',
         password: ''
     });
-    const { handleLogin } = useAuth();
-    const navigate = useNavigate();
+
 
     const cardRef = useRef(null);
     const formRef = useRef(null);
@@ -101,10 +107,6 @@ const Login = () => {
                     </div>
 
                     <div className="space-y-2">
-                        <div className="flex items-center justify-between ml-1">
-                            <label className="text-sm font-medium text-gray-700">Password</label>
-                            <a href="#" className="text-xs font-semibold text-indigo-600 hover:text-indigo-500">Forgot?</a>
-                        </div>
                         <div className="relative group">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-indigo-500" />
                             <input

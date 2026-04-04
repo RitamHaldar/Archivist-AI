@@ -43,5 +43,9 @@ export const imagetextExtractorandUpload = async (buffer, mimetype = "image/jpeg
 export const pdftextExtractor = async (buffer) => {
     const parser = new PDFParse({ data: buffer });
     const result = await parser.getText();
-    return result.text;
+    let text = result.text || "";
+    if (text.length > 15000) {
+        text = text.substring(0, 15000);
+    }
+    return text;
 };

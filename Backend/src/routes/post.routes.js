@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createPost, getPosts } from "../controllers/post.controller.js";
+import { createPost, getPosts, semanticSearch } from "../controllers/post.controller.js";
 import { Identifyuser } from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/upload.middleware.js";
 
@@ -32,5 +32,12 @@ router.post("/create", Identifyuser, upload.single("file"), createPost);
  * @access private
  */
 router.get("/get-posts", Identifyuser, getPosts);
+
+/**
+ * @description Semantic search for posts
+ * @route POST /api/posts/semantic-search
+ * @access private
+ */
+router.post("/semantic-search", Identifyuser, semanticSearch);
 
 export default router;

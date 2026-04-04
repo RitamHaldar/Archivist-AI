@@ -40,6 +40,7 @@ export async function createPost(req, res) {
         },
         includeMetadata: true
     })
+
     const bestMatch = result.matches?.[0];
     if (bestMatch && bestMatch.score >= 0.94) {
         const collection = await collectionModel.findById(bestMatch.id)
@@ -109,14 +110,54 @@ export async function createPost(req, res) {
             }
         ]
     });
+    const similarposts = await index.query({
+        vector: embedding,
+        topK: 3,
+        filter: {
+            userId: req.user.id,
+            type: "post"
+        },
+        includeMetadata: true
+    })
+    let similarpostids = []
+    if (similarposts.matches.length > 0) {
+        similarpostids = similarposts.matches.map((match) => {
+            if (match.score >= 0.5) {
+                return match.id
+            }
+        })
+    }
+    const suggestedposts = await postModel.find({ _id: { $in: similarpostids } })
     res.status(201).json({
         message: "Post created successfully",
         post,
         collectionId,
-        collectionName
+        collectionName,
+        suggestedposts
     })
 }
 export async function getPosts(req, res) {
     const posts = await postModel.find({ user: req.user.id })
     return res.status(200).json({ message: "Posts fetched successfully", posts })
+}
+
+export async function semanticSearch(req, res) {
+    const { query } = req.body
+    const embedding = await generateEmbedding(query)
+    const result = await index.query({
+        vector: embedding,
+        topK: 10,
+        filter: {
+            userId: req.user.id,
+            type: "post"
+        },
+        includeMetadata: true
+    })
+    const ids = result.matches.map((match) => {
+        if (match.score >= 0.65) {
+            return match.id
+        }
+    })
+    const posts = await postModel.find({ _id: { $in: ids } })
+    return res.status(200).json({ message: "Semantic search successful", posts })
 }

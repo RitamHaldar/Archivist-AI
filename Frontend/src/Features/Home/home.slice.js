@@ -7,6 +7,9 @@ const homeSlice = createSlice({
         posts: [],
         selectedCollection: null,
         loading: false,
+        suggestedPosts: [],
+        searchPosts: [],
+        tagSearchQuery: '',
         error: null,
     },
     reducers: {
@@ -28,8 +31,17 @@ const homeSlice = createSlice({
         setError: (state, action) => {
             state.error = action.payload;
         },
+        setSuggestedPosts: (state, action) => {
+            state.suggestedPosts = action.payload;
+        },
+        setSearchPosts: (state, action) => {
+            state.searchPosts = action.payload;
+        },
+        setTagSearchQuery: (state, action) => {
+            state.tagSearchQuery = action.payload;
+        },
     },
 });
 
-export const { setCollections, setPosts, setSelectedCollection, setLoading, setError, addPost } = homeSlice.actions;
+export const { setCollections, setPosts, setSelectedCollection, setLoading, setError, addPost, setSuggestedPosts, setSearchPosts, setTagSearchQuery } = homeSlice.actions;
 export default homeSlice.reducer;

@@ -6,6 +6,7 @@ import Sidebar from '../Components/Sidebar';
 import KnowledgeGraph from '../Components/KnowledgeGraph';
 import Tags from '../Components/Tags';
 import ExtensionPromo from '../Components/ExtensionPromo';
+import SearchPage from '../Components/SearchPage';
 import { gsap } from 'gsap';
 import { useHome } from '../Hooks/useHome';
 import { X, Sparkles } from 'lucide-react';
@@ -61,6 +62,7 @@ const Homepage = () => {
             setShowDiscovery={setShowDiscovery}
             createPost={handleCreatePost}
             isLoading={loading}
+            setActiveTab={setActiveTab}
           />
         </div>
 
@@ -80,6 +82,10 @@ const Homepage = () => {
 
           {activeTab === 'Tags' && (
             <Tags />
+          )}
+          
+          {activeTab === 'Search' && (
+            <SearchPage />
           )}
 
         </div>

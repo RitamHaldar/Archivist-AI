@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Search, LayoutGrid, List, X, Wand2, Hash,
   Brain, Palette, Scale, Microscope, PieChart, ChevronRight,
@@ -66,7 +67,7 @@ const TagAnalysisPanel = ({ tag, posts, onClose }) => {
         onClick={onClose}
       />
       
-      <div className="w-[380px] bg-white border border-gray-100 h-[36%] flex flex-col fixed right-6 top-6 shadow-[-12px_0_32px_-12px_rgba(0,0,0,0.05)] animate-slide-in-right z-40 overflow-y-auto custom-scrollbar rounded-[32px]">
+      <div className="w-[420px] bg-white border border-gray-100 h-[88%] flex flex-col fixed right-6 top-6 shadow-[-12px_0_32px_-12px_rgba(0,0,0,0.05)] animate-slide-in-right z-40 overflow-y-auto custom-scrollbar rounded-[32px]">
       <div className="p-6 sticky top-0 bg-white/95 backdrop-blur-md z-10 border-b border-gray-50 flex items-center justify-between">
         <h2 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
           <PieChart className="w-3.5 h-3.5" /> Cluster Analysis
@@ -154,10 +155,18 @@ const TagAnalysisPanel = ({ tag, posts, onClose }) => {
 
 const Tags = () => {
   const { posts, loading } = useHome();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { tagSearchQuery } = useSelector((state) => state.home);
+  const [searchQuery, setSearchQuery] = useState(tagSearchQuery || '');
   const [selectedTag, setSelectedTag] = useState(null);
   const [lastSelectedTag, setLastSelectedTag] = useState(null);
   const topRef = useRef(null);
+
+  // Sync internal search with global query from Discovery
+  useEffect(() => {
+    if (tagSearchQuery !== undefined) {
+      setSearchQuery(tagSearchQuery);
+    }
+  }, [tagSearchQuery]);
 
   const availableTags = useMemo(() => {
     if (!posts) return [];

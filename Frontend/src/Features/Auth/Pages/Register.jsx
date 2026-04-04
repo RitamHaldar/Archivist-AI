@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuth } from '../Hooks/useAuth';
-import { User, Mail, Lock, ArrowRight, Loader2, Rocket, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Lock, ArrowRight, Rocket } from 'lucide-react';
 import { gsap } from 'gsap';
+import { useSelector } from 'react-redux';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -13,7 +14,10 @@ const Register = () => {
     });
     const { handleRegister } = useAuth();
     const navigate = useNavigate();
-
+    const user = useSelector((state) => state.auth.user);
+    if (user) {
+        navigate('/');
+    }
     const cardRef = useRef(null);
     const formRef = useRef(null);
     const titleRef = useRef(null);

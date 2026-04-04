@@ -1,7 +1,6 @@
-import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createPost, getCollections, getPosts } from "../Services/home.api";
-import { setCollections, setPosts, setLoading, setError, addPost } from "../home.slice";
+import { createPost, getCollections, getPosts, semanticSearch } from "../Services/home.api";
+import { setCollections, setPosts, setLoading, setError, addPost, setSuggestedPosts, setSearchPosts, setTagSearchQuery } from "../home.slice";
 
 export const useHome = () => {
     const dispatch = useDispatch();
@@ -39,6 +38,7 @@ export const useHome = () => {
             if (response?.post) {
                 dispatch(addPost(response.post));
                 fetchHomeData();
+                dispatch(setSuggestedPosts(response.suggestedposts));
             }
             dispatch(setError(null));
             return response;
@@ -50,13 +50,30 @@ export const useHome = () => {
             dispatch(setLoading(false));
         }
     };
-
+    const handleSemanticSearch = async (query) => {
+        dispatch(setLoading(true));
+        try {
+            const response = await semanticSearch(query);
+            if (response?.posts) {
+                dispatch(setSearchPosts(response.posts));
+            }
+            dispatch(setError(null));
+            return response;
+        } catch (err) {
+            const errorMessage = err?.message || "Failed to search posts";
+            dispatch(setError(errorMessage));
+            throw err;
+        } finally {
+            dispatch(setLoading(false));
+        }
+    };
     return {
         collections,
         posts,
         loading,
         error,
         fetchHomeData,
-        handleCreatePost
+        handleCreatePost,
+        handleSemanticSearch
     };
 };

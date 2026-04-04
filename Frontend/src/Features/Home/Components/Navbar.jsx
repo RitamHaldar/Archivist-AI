@@ -1,8 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Search, Plus, Bell, X, Zap, LinkIcon, FileText, PlayCircle, Image as ImageIcon, Globe, Upload, ChevronRight, Sparkles } from 'lucide-react';
+import { Plus, Bell, X, Zap, LinkIcon, FileText, PlayCircle, Image as ImageIcon, Globe, Upload, ChevronRight, Sparkles, Search, LogOut } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { gsap } from 'gsap';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useHome } from '../Hooks/useHome';
+import { useAuth } from '../../Auth/Hooks/useAuth';
+import { setTagSearchQuery } from '../home.slice';
 
 const Navbar = ({
   showAddOptions,
@@ -10,8 +13,15 @@ const Navbar = ({
   showDiscovery,
   setShowDiscovery,
   createPost,
-  isLoading
+  isLoading,
+  setActiveTab
 }) => {
+  const { handleLogout } = useAuth();
+  const dispatch = useDispatch();
+  const { handleSemanticSearch } = useHome();
+  const { suggestedPosts } = useSelector((state) => state.home);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showRedDot, setShowRedDot] = useState(false);
   const optionsRef = useRef(null);
   const fileInputRef = useRef(null);
   const modalRef = useRef(null);
@@ -22,6 +32,20 @@ const Navbar = ({
   const [activeModal, setActiveModal] = useState(null); // 'url' | 'pdf' | 'youtube' | 'image'
   const [urlInput, setUrlInput] = useState('');
   const [selectedFileName, setSelectedFileName] = useState('');
+
+  const popularTags = React.useMemo(() => {
+    const tags = new Set();
+    suggestedPosts?.forEach(post => {
+      post.tags?.forEach(tag => tags.add(tag));
+    });
+    return Array.from(tags).slice(0, 15);
+  }, [suggestedPosts]);
+
+  const handleTagClick = (tag) => {
+    dispatch(setTagSearchQuery(tag));
+    setActiveTab('Tags');
+    setShowDiscovery(false);
+  };
 
   useEffect(() => {
     if (showAddOptions && optionsRef.current) {
@@ -114,13 +138,26 @@ const Navbar = ({
             yoyo: true,
             repeat: 1,
             ease: 'power2.inOut',
-            onComplete: closeModal
+            onComplete: () => {
+                closeModal();
+                setShowDiscovery(true);
+                setShowRedDot(false);
+            }
           });
         })
         .catch((err) => {
           console.error("Failed to create post:", err);
         });
     }
+  };
+
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    // Instant navigation
+    setActiveTab('Search');
+    handleSemanticSearch(searchQuery);
   };
 
   const renderLoadingState = () => {
@@ -249,19 +286,24 @@ const Navbar = ({
     <>
       <div className="sticky top-0 z-50">
         <header className="glass-effect px-8 py-5 flex items-center justify-between animate-fade-in relative z-10">
-          <div className="relative w-full max-w-xl group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="h-[18px] w-[18px] text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+          <form onSubmit={handleSearch} className="relative w-full max-w-xl group">
+            <div 
+              onClick={handleSearch}
+              className="absolute inset-y-0 left-0 pl-4 flex items-center cursor-pointer group"
+            >
+              <Search className="h-[18px] w-[18px] text-gray-400 group-hover:text-indigo-500 transition-colors" />
             </div>
             <input
               type="text"
               placeholder="Ask your knowledge base..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="block w-full pl-11 pr-20 py-2.5 bg-[#F5F5F7] border border-transparent rounded-2xl text-sm placeholder-gray-500 focus:outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-200 transition-all duration-300"
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <span className="text-[10px] font-bold text-gray-400 bg-white shadow-sm border border-gray-100 px-2 py-1 rounded-lg">CMD + K</span>
             </div>
-          </div>
+          </form>
 
           <div className="flex items-center gap-5">
             <button
@@ -276,57 +318,100 @@ const Navbar = ({
             </button>
             <div className="relative">
               <button
-                onClick={() => setShowDiscovery(!showDiscovery)}
+                onClick={() => {
+                   if (showDiscovery) {
+                     // Closing
+                     if (suggestedPosts.length > 0) {
+                        setShowRedDot(true);
+                     }
+                   } else {
+                     // Opening
+                     setShowRedDot(false);
+                   }
+                   setShowDiscovery(!showDiscovery);
+                }}
                 className={`relative p-2 transition-all duration-300 rounded-full h-10 w-10 flex items-center justify-center ${showDiscovery ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400 hover:text-gray-900 hover:bg-gray-100'}`}
               >
                 <div className={`transition-transform duration-500 ${showDiscovery ? 'rotate-90 scale-110' : 'rotate-0 scale-100'}`}>
                   {showDiscovery ? <X className="w-5 h-5" /> : <Bell className="w-[22px] h-[22px]" />}
                 </div>
-                {!showDiscovery && <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>}
+                {showRedDot && !showDiscovery && <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>}
               </button>
 
               {showDiscovery && (
-                <div className="absolute top-12 right-0 w-[350px] z-[100] animate-spring-in">
+                <div className="absolute top-12 right-0 w-[400px] z-[100] animate-spring-in">
                   <div className="bg-white/95 backdrop-blur-xl border border-gray-100 rounded-[32px] p-8 shadow-2xl shadow-indigo-100/40 space-y-8">
                     <div>
                       <h2 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center justify-between">
-                        Discovery <span className="bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-md text-[9px]">New</span>
+                        Discovery <span className="bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-md text-[9px]">New Suggestions</span>
                       </h2>
 
-                      <div className="bg-indigo-50/30 border border-indigo-100/60 rounded-3xl p-6 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100/50 rounded-full blur-3xl -mr-12 -mt-12 pointer-events-none"></div>
-                        <div className="flex items-center gap-2 mb-4">
-                          <Zap className="w-[14px] h-[14px] text-indigo-600 fill-indigo-600/20" />
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">AI Recommended</span>
-                        </div>
+                      <div className="space-y-4 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
+                        {suggestedPosts && suggestedPosts.length > 0 ? suggestedPosts.map((post, idx) => (
+                          <div key={post._id || idx} className="bg-indigo-50/30 border border-indigo-100/60 rounded-3xl p-6 relative overflow-hidden group hover:border-indigo-300 transition-all cursor-default">
+                             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100/50 rounded-full blur-3xl -mr-12 -mt-12 pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                             <div className="flex items-center gap-2 mb-4">
+                               <Zap className="w-[14px] h-[14px] text-indigo-600 fill-indigo-600/20" />
+                               <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">AI Recommended</span>
+                             </div>
 
-                        <h3 className="font-extrabold text-[16px] mb-2 text-gray-900">Attention is All You Need</h3>
-                        <p className="text-[13px] text-gray-500 mb-5 leading-relaxed">You might like this paper based on your interest in "Transformer Models".</p>
+                             <h3 className="font-extrabold text-[15px] mb-2 text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-1">{post.title}</h3>
+                             <p className="text-[12px] text-gray-500 mb-5 leading-relaxed line-clamp-2">{post.summary}</p>
 
-                        <div className="flex items-center justify-between pt-2">
-                          <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> 98% Match</span>
-                          <button className="text-[12px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors">Add to Library</button>
-                        </div>
+                             <div className="flex items-center justify-between pt-2 border-t border-indigo-100/40">
+                               <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> 98% Match</span>
+                               <button 
+                                 onClick={() => window.open(post.url, '_blank')}
+                                 className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1"
+                               >
+                                 Explore <ChevronRight className="w-3 h-3" />
+                               </button>
+                             </div>
+                          </div>
+                        )) : (
+                          <div className="py-12 bg-gray-50/50 rounded-3xl border border-dashed border-gray-200 text-center">
+                            <Sparkles className="w-8 h-8 text-gray-300 mx-auto mb-3" />
+                            <p className="text-gray-500 font-bold text-sm">No new clusters detected.</p>
+                            <p className="text-[11px] text-gray-400 mt-1">Upload posts to see intelligence synthesis.</p>
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     <div>
                       <h2 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">Popular Tags</h2>
                       <div className="flex flex-wrap gap-2">
-                        {['Design System', 'Typography', 'Machine Learning', 'Startups', 'Ethics', 'Psychology'].map(tag => (
-                          <button key={tag} className="px-3 py-1.5 bg-gray-50 border border-gray-100 text-xs font-semibold text-gray-600 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all hover:-translate-y-0.5">
-                            {tag}
+                        {popularTags && popularTags.length > 0 ? popularTags.map(tag => (
+                          <button 
+                            key={tag} 
+                            onClick={() => handleTagClick(tag)}
+                            className="px-3 py-1.5 bg-gray-50 border border-gray-100 text-xs font-semibold text-gray-600 rounded-xl hover:border-indigo-300 hover:text-indigo-600 hover:shadow-sm transition-all hover:-translate-y-0.5 active:scale-95"
+                          >
+                            #{tag}
                           </button>
-                        ))}
+                        )) : (
+                           <p className="text-[11px] text-gray-400 font-medium italic">No tags detected in current clusters.</p>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
               )}
             </div>
-            <button className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white flex items-center justify-center overflow-hidden border-2 border-white shadow-sm hover:scale-105 transition-transform cursor-pointer">
-              {useSelector((state) => state.auth.user.username)}
-            </button>
+            <div className="flex items-center gap-3">
+              <button className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white flex items-center justify-center overflow-hidden border-2 border-white shadow-sm hover:scale-105 transition-transform cursor-pointer group relative">
+                <span className="text-xs font-bold">{useSelector((state) => state.auth.user.username?.[0].toUpperCase())}</span>
+                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] font-bold">Profile</div>
+              </button>
+              
+              <button 
+                onClick={handleLogout}
+                className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all active:scale-95 group"
+                title="Logout Session"
+              >
+                <LogOut className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
         </header>
 
