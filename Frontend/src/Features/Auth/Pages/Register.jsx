@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuth } from '../Hooks/useAuth';
-import { User, Mail, Lock, ArrowRight, Rocket } from 'lucide-react';
+import { User, Mail, Lock, ArrowRight, Rocket, CheckCircle2 } from 'lucide-react';
 import { gsap } from 'gsap';
 import { useSelector } from 'react-redux';
 
@@ -12,6 +12,7 @@ const Register = () => {
         password: '',
         confirmPassword: ''
     });
+    const [error, setError] = useState(null);
     const { handleRegister } = useAuth();
     const navigate = useNavigate();
     const user = useSelector((state) => state.auth.user);
@@ -95,6 +96,12 @@ const Register = () => {
                 </div>
 
                 <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+                    {error && (
+                        <div className="bg-red-50/50 backdrop-blur-sm border border-red-100 text-red-600 px-4 py-3 rounded-2xl text-sm font-medium flex items-center gap-2 mb-4 animate-in fade-in slide-in-from-top-1 duration-300">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                            {error}
+                        </div>
+                    )}
 
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-1.5">

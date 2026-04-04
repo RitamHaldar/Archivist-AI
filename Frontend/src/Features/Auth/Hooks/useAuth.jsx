@@ -10,7 +10,7 @@ export const useAuth = () => {
             const response = await login(username, email, password)
             dispatch(setUser(response.user))
             dispatch(setLoading(false))
-            dispatch(setUsername(null))
+            dispatch(setUsername(response.user.user))
         }
         catch (error) {
             dispatch(setError(error.message))
@@ -19,9 +19,10 @@ export const useAuth = () => {
     const handleRegister = async (username, email, password) => {
         try {
             dispatch(setLoading(true))
-            await register(username, email, password)
-            dispatch(setUser(null))
+            const response = await register(username, email, password)
+            dispatch(setUser(response.user))
             dispatch(setLoading(false))
+            dispatch(setUsername(response.user.user))
         }
         catch (error) {
             dispatch(setError(error.message))
@@ -34,6 +35,7 @@ export const useAuth = () => {
             await logout()
             dispatch(setUser(null))
             dispatch(setLoading(false))
+            dispatch(setUsername(null))
         }
         catch (error) {
             dispatch(setError(error.message))

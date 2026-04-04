@@ -29,7 +29,7 @@ const Navbar = ({
   const loaderIconRef = useRef(null);
   const loaderTextRef = useRef(null);
 
-  const [activeModal, setActiveModal] = useState(null); // 'url' | 'pdf' | 'youtube' | 'image'
+  const [activeModal, setActiveModal] = useState(null);
   const [urlInput, setUrlInput] = useState('');
   const [selectedFileName, setSelectedFileName] = useState('');
 
@@ -100,7 +100,7 @@ const Navbar = ({
   };
 
   const closeModal = () => {
-    if (isLoading) return; // Prevent closing while uploading
+    if (isLoading) return;
 
     gsap.to(modalContentRef.current, {
       scale: 0.9,
@@ -155,7 +155,6 @@ const Navbar = ({
     if (e) e.preventDefault();
     if (!searchQuery.trim()) return;
 
-    // Instant navigation
     setActiveTab('Search');
     handleSemanticSearch(searchQuery);
   };
@@ -320,12 +319,10 @@ const Navbar = ({
               <button
                 onClick={() => {
                    if (showDiscovery) {
-                     // Closing
                      if (suggestedPosts.length > 0) {
                         setShowRedDot(true);
                      }
                    } else {
-                     // Opening
                      setShowRedDot(false);
                    }
                    setShowDiscovery(!showDiscovery);
