@@ -38,7 +38,7 @@ const postSchema = new mongoose.Schema({
         ref: "folders",
         //required: true
     }
-});
+}, { timestamps: true });
 
 export const postModel = mongoose.model("post", postSchema);
 

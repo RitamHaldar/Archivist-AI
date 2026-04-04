@@ -5,6 +5,7 @@ const homeSlice = createSlice({
     initialState: {
         collections: [],
         posts: [],
+        selectedCollection: null,
         loading: false,
         error: null,
     },
@@ -15,6 +16,9 @@ const homeSlice = createSlice({
         setPosts: (state, action) => {
             state.posts = action.payload;
         },
+        setSelectedCollection: (state, action) => {
+            state.selectedCollection = action.payload;
+        },
         setLoading: (state, action) => {
             state.loading = action.payload;
         },
@@ -24,5 +28,5 @@ const homeSlice = createSlice({
     },
 });
 
-export const { setCollections, setPosts, setLoading, setError } = homeSlice.actions;
+export const { setCollections, setPosts, setSelectedCollection, setLoading, setError } = homeSlice.actions;
 export default homeSlice.reducer;

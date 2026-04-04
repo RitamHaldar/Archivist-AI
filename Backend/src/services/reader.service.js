@@ -1,14 +1,43 @@
-import Tesseract from "tesseract.js";
+import axios from "axios";
 import { PDFParse } from "pdf-parse";
-export const imagetextExtractorandUpload = async (buffer) => {
-    const { data: { text } } = await Tesseract.recognize(
-        buffer,
-        "eng",
-    );
-    if (!text) {
-        return "No text found in the image";
+
+export const imagetextExtractorandUpload = async (buffer, mimetype = "image/jpeg") => {
+    try {
+        if (!process.env.OCR_SPACE_API_KEY) {
+            console.error("OCR_SPACE_API_KEY is not defined in environment variables.");
+            return "OCR configuration error: Missing API Key";
+        }
+
+        const base64Image = `data:${mimetype};base64,${buffer.toString("base64")}`;
+        const formData = new URLSearchParams();
+        formData.append("apikey", process.env.OCR_SPACE_API_KEY);
+        formData.append("base64Image", base64Image);
+        formData.append("language", "eng");
+        formData.append("isOverlayRequired", "false");
+        const response = await axios.post("https://api.ocr.space/parse/image", formData, {
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+        });
+        if (response.data.IsErroredOnProcessing) {
+            const errorMsg = response.data.ErrorMessage?.[0] || "Unknown processing error";
+            console.error("OCR.space Processing Error:", errorMsg);
+            return `OCR Error: ${errorMsg}`;
+        }
+
+        if (response.data && response.data.ParsedResults && response.data.ParsedResults.length > 0) {
+            const text = response.data.ParsedResults[0].ParsedText;
+            if (!text || text.trim() === "") {
+                return "No text found in the image";
+            }
+            return text;
+        }
+
+        return "No text detected in the image or OCR API processing error";
+    } catch (error) {
+        console.error("OCR.space request failed:", error.response?.data || error.message);
+        throw new Error("Failed to extract text from image using OCR.space");
     }
-    return text;
 };
 
 export const pdftextExtractor = async (buffer) => {

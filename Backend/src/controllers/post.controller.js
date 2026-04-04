@@ -12,7 +12,7 @@ export async function createPost(req, res) {
     if (file) {
         const buffer = file.buffer
         if (file.mimetype.startsWith("image")) {
-            text = await imagetextExtractorandUpload(buffer)
+            text = await imagetextExtractorandUpload(buffer, file.mimetype)
         }
         else {
             text = await pdftextExtractor(buffer)
@@ -41,7 +41,7 @@ export async function createPost(req, res) {
         includeMetadata: true
     })
     const bestMatch = result.matches?.[0];
-    if (bestMatch && bestMatch.score >= 0.80) {
+    if (bestMatch && bestMatch.score >= 0.85) {
         const collection = await collectionModel.findById(bestMatch.id)
         const oldcollectionembedding = collection.centroidEmbedding
         const newcollectionembedding = oldcollectionembedding.map((v, i) => {

@@ -39,7 +39,6 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
           <SidebarItem icon={Folder} label="Collections" active={activeTab === 'Collections'} onClick={() => setActiveTab('Collections')} />
           <SidebarItem icon={Network} label="Knowledge Graph" active={activeTab === 'Knowledge Graph'} onClick={() => setActiveTab('Knowledge Graph')} />
           <SidebarItem icon={Tag} label="Tags" active={activeTab === 'Tags'} onClick={() => setActiveTab('Tags')} />
-          <SidebarItem icon={Star} label="Favorites" active={activeTab === 'Favorites'} onClick={() => setActiveTab('Favorites')} />
         </nav>
 
         {/* YOUR LIBRARY */}

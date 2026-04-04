@@ -136,14 +136,17 @@ export async function generateEmbedding(content) {
 }
 
 export async function generateClustername(content, existingcollections) {
-    const systemPromt = `You are a cluster name generation assistant.
-
-Generate a catchy and relevant name for the following content.
-existing collections: ${existingcollections.map(collection => collection.name).join(", ")}
-Rules:
-- Name should be short one to two words and they should not be same as any of the existing collections like Frondend , Backend, AI, ML, Python Learning, etc.
-- Use clear and concise language
-- Return only the name
+    const systemPromt = `You are a professional taxonomy and research categorization assistant.
+    
+    Categorize the following content into a high-level, relevant research cluster name.
+    Existing clusters in the system: ${existingcollections.map(collection => collection.name).join(", ")}
+    
+    Categorization Rules:
+    - The name should be professional, short (1-2 words), and represent a broad but distinct topic (e.g., 'Software Engineering', 'Neuroscience', 'Finance', 'System Design').
+    - If the content is technical/code-related but doesn't perfectly fit an existing language folder, use a generic name like 'Programming' or 'Development'.
+    - DO NOT use the same name as any existing cluster listed above.
+    - Differentiate between related but distinct technologies (e.g., do NOT put 'Java' in a 'Python' cluster if you're creating a new one).
+    - Return ONLY the name.
 `
     const response = await agent.invoke({
         messages: [

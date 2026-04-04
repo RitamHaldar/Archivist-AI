@@ -1,5 +1,6 @@
-import React from 'react';
-import { Search, Plus, Bell, X, Zap, LinkIcon, FileText, Copy } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { Search, Plus, Bell, X, Zap, LinkIcon, FileText, PlayCircle, Image as ImageIcon } from 'lucide-react';
+import { gsap } from 'gsap';
 
 const Navbar = ({
   showAddOptions,
@@ -7,6 +8,21 @@ const Navbar = ({
   showDiscovery,
   setShowDiscovery
 }) => {
+  const optionsRef = useRef(null);
+  useEffect(() => {
+    if (showAddOptions && optionsRef.current) {
+      const buttons = optionsRef.current.querySelectorAll('button');
+      gsap.fromTo(optionsRef.current,
+        { y: -20, opacity: 0, scaleY: 0.8 },
+        { y: 0, opacity: 1, scaleY: 1, duration: 0.6, ease: 'expo.out' }
+      );
+      gsap.fromTo(buttons,
+        { y: 15, opacity: 0, scale: 0.8 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.5, stagger: 0.08, ease: 'back.out(1.7)', delay: 0.1 }
+      );
+    }
+  }, [showAddOptions]);
+
   return (
     <div className="sticky top-0 z-50">
       <header className="glass-effect px-8 py-5 flex items-center justify-between animate-fade-in relative z-10">
@@ -97,16 +113,22 @@ const Navbar = ({
 
     {/* Add Options Overlay/Bar */}
     {showAddOptions && (
-      <div className="absolute top-full left-0 right-0 glass-effect border-t-0 py-4 px-8 flex items-center justify-center gap-4 animate-slide-down shadow-xl shadow-indigo-100/20 z-0">
-        <div className="flex items-center gap-4">
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-white/80 border border-gray-200 hover:border-indigo-300 rounded-2xl text-sm font-semibold text-gray-700 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 animate-spring-in stagger-1 group">
-            <LinkIcon className="w-4 h-4 text-indigo-500 group-hover:scale-110 transition-transform" /> Save Link
+      <div ref={optionsRef} className="absolute top-full left-0 right-0 glass-effect border-t-0 py-5 px-8 flex items-center justify-center gap-4 shadow-xl shadow-indigo-100/20 z-0 origin-top overflow-hidden">
+        <div className="flex flex-wrap items-center justify-center gap-4 max-w-4xl">
+          <button className="flex items-center gap-2.5 px-6 py-3 bg-white/80 border border-gray-200 hover:border-indigo-300 rounded-[22px] text-sm font-bold text-gray-700 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 group">
+            <LinkIcon className="w-4 h-4 text-indigo-500 group-hover:scale-110 transition-transform" /> Save Article
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-white/80 border border-gray-200 hover:border-blue-300 rounded-2xl text-sm font-semibold text-gray-700 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 animate-spring-in stagger-2 group">
-            <FileText className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform" /> Upload PDF
+          
+          <button className="flex items-center gap-2.5 px-6 py-3 bg-white/80 border border-gray-200 hover:border-purple-300 rounded-[22px] text-sm font-bold text-gray-700 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 group">
+            <FileText className="w-4 h-4 text-purple-600 group-hover:scale-110 transition-transform" /> Upload PDF
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-white/80 border border-gray-200 hover:border-purple-300 rounded-2xl text-sm font-semibold text-gray-700 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 animate-spring-in stagger-3 group">
-            <Copy className="w-4 h-4 text-purple-500 group-hover:scale-110 transition-transform" /> Paste Content
+
+          <button className="flex items-center gap-2.5 px-6 py-3 bg-white/80 border border-gray-200 hover:border-red-300 rounded-[22px] text-sm font-bold text-gray-700 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 group">
+            <PlayCircle className="w-4 h-4 text-red-500 group-hover:scale-110 transition-transform" /> Save Youtube Link
+          </button>
+
+          <button className="flex items-center gap-2.5 px-6 py-3 bg-white/80 border border-gray-200 hover:border-pink-300 rounded-[22px] text-sm font-bold text-gray-700 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 group">
+            <ImageIcon className="w-4 h-4 text-pink-500 group-hover:scale-110 transition-transform" /> Upload Image
           </button>
         </div>
       </div>

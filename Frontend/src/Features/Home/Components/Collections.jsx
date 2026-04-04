@@ -1,226 +1,286 @@
-import React from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { 
-  ChevronRight, Grid, List, Plus, ChevronDown, ListFilter,
-  Globe, FileText, PlayCircle, Share2, Bookmark, Download, Clock, Sparkles
+  ChevronRight, Grid, List, X, ListFilter,
+  Globe, FileText, PlayCircle, Share2, Bookmark, Clock, Sparkles,
+  Search, Image as ImageIcon, Video, File
 } from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setSelectedCollection } from '../home.slice';
+import { useHome } from '../Hooks/useHome';
 
-const Card = ({ type, source, title, tags, date, icon: ActionIcon, bgClass, graphic }) => (
-  <div className="bg-white rounded-[24px] border border-[1px] border-gray-100 flex flex-col h-full overflow-hidden subtle-ring card-hover group cursor-pointer w-[280px]">
-    {/* Graphic Area */}
-    <div className={`h-[180px] w-full ${bgClass} p-5 relative overflow-hidden flex items-center justify-center`}>
-      {graphic}
-      {/* Small top-left icon representing the type overlay */}
-      <div className="absolute top-4 left-4 w-7 h-7 bg-white/90 backdrop-blur shadow-sm rounded-full flex items-center justify-center z-10 transition-transform group-hover:scale-110">
-        {type === 'ARTICLE' ? <Globe className="w-3.5 h-3.5 text-gray-700" /> : 
-         type === 'PDF REPORT' ? <FileText className="w-3.5 h-3.5 text-red-500 fill-red-500/20" /> : 
-         <PlayCircle className="w-3.5 h-3.5 text-gray-600 fill-gray-600" />}
+// Dynamic Color Mapping for Premium Visuals
+const COLLECTION_STYLES = [
+  { color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-100', accent: 'bg-indigo-500' },
+  { color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100', accent: 'bg-purple-500' },
+  { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100', accent: 'bg-emerald-500' },
+  { color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-100', accent: 'bg-rose-500' },
+  { color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100', accent: 'bg-amber-500' },
+];
+
+const getCollectionStyle = (name) => {
+  const index = name.length % COLLECTION_STYLES.length;
+  return COLLECTION_STYLES[index];
+};
+
+const CollectionCard = ({ collection, onClick }) => {
+  const style = getCollectionStyle(collection.name);
+  
+  return (
+    <div 
+      onClick={onClick}
+      className="bg-white rounded-[32px] p-8 border border-gray-100 flex flex-col h-[280px] w-full overflow-hidden subtle-ring card-hover group cursor-pointer relative"
+    >
+      <div className={`absolute top-0 right-0 w-48 h-48 ${style.bg} rounded-full blur-3xl opacity-20 -mr-24 -mt-24 group-hover:opacity-40 transition-opacity`}></div>
+      
+      <div className="flex justify-between items-start mb-8 relative z-10">
+        <div className={`w-14 h-14 rounded-2xl ${style.bg} ${style.color} flex items-center justify-center shadow-sm border border-white`}>
+          <Bookmark className="w-7 h-7" />
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1 bg-gray-50 rounded-full border border-gray-100">
+           <div className={`w-1.5 h-1.5 rounded-full ${style.accent}`}></div>
+           <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{collection.count} Items</span>
+        </div>
+      </div>
+
+      <div className="relative z-10 mt-auto">
+        <h3 className="text-[22px] font-black text-gray-900 leading-tight mb-3 tracking-tighter group-hover:text-indigo-600 transition-colors">
+          {collection.name}
+        </h3>
+        
+        <div className="flex items-center gap-4 text-[11px] font-bold text-gray-400">
+          <div className="flex items-center gap-1.5">
+            <FileText className="w-3.5 h-3.5" />
+            <span>{collection.stats.pdf || 0} PDFs</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Globe className="w-3.5 h-3.5" />
+            <span>{collection.stats.url || 0} Links</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+             <ImageIcon className="w-3.5 h-3.5" />
+             <span>{collection.stats.image || 0} Images</span>
+          </div>
+        </div>
       </div>
     </div>
-    
-    {/* Content Area */}
-    <div className="p-5 flex flex-col flex-1 relative z-10 bg-white min-h-[190px]">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-[9px] font-bold uppercase tracking-wider bg-gray-100/80 text-gray-600 px-2.5 py-1 rounded-md">{type}</span>
-        <span className="text-[10px] font-semibold text-gray-400 tracking-wide">{source}</span>
-      </div>
+  );
+};
+
+const CollectionAnalysisPanel = ({ collection, posts, onClose }) => {
+  if (!collection) return null;
+
+  const style = getCollectionStyle(collection.name);
+
+  return (
+    <>
+      <div 
+        className="fixed inset-0 bg-black/5 backdrop-blur-[1px] z-[30] animate-fade-in"
+        onClick={onClose}
+      />
       
-      <h3 className="font-extrabold text-[17px] leading-snug mb-4 text-gray-900 line-clamp-3 group-hover:text-indigo-600 transition-colors">
-        {title}
-      </h3>
-      
-      <div className="flex flex-wrap gap-2 mb-6 mt-auto">
-        {tags.map((tag, i) => (
-          <span key={i} className="text-[10px] font-bold tracking-wide text-indigo-600 bg-indigo-50/80 px-2 py-1 flex items-center justify-center hover:bg-indigo-100 transition-colors">{tag}</span>
-        ))}
+      <div className="w-[420px] bg-white border border-gray-100 h-[66%] flex flex-col fixed right-6 top-6 shadow-[-12px_0_32px_-12px_rgba(0,0,0,0.05)] animate-slide-in-right z-40 overflow-y-auto custom-scrollbar rounded-[32px]">
+        <div className="p-6 sticky top-0 bg-white/95 backdrop-blur-md z-10 border-b border-gray-50 flex items-center justify-between">
+          <h2 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-500" /> Collection Insight
+          </h2>
+          <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-8 flex-1 flex flex-col">
+          <div className="flex items-center gap-5 mb-8">
+            <div className={`w-14 h-14 rounded-2xl ${style.bg} ${style.color} flex items-center justify-center shadow-sm`}>
+              <Bookmark className="w-7 h-7" />
+            </div>
+            <div>
+              <h1 className="text-[24px] font-black text-gray-900 leading-tight tracking-tight">{collection.name}</h1>
+              <p className="text-[11px] font-bold text-gray-400 tracking-tight uppercase">Cluster Active • {collection.count} Nodes</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-[11px] font-black text-gray-900 uppercase tracking-[0.15em] mb-4">Neural Collection Contents</h3>
+            <div className="grid grid-cols-1 gap-2">
+              {posts.map((post) => (
+                <a
+                  key={post._id}
+                  href={post.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-3 rounded-2xl bg-gray-50/50 hover:bg-gray-100 transition-colors border border-gray-50 group/item"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shadow-sm group-hover/item:text-indigo-600 transition-colors">
+                      {post.type === 'pdf' ? <FileText className="w-4 h-4" /> :
+                       post.type === 'image' ? <ImageIcon className="w-4 h-4" /> :
+                       post.type === 'youtube' ? <PlayCircle className="w-4 h-4" /> :
+                       <Globe className="w-4 h-4" />}
+                    </div>
+                    <div>
+                      <h4 className="text-[13px] font-bold text-gray-800 line-clamp-1">{post.title}</h4>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{post.type}</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-300 group-hover/item:text-indigo-400 transition-all translate-x-0 group-hover:translate-x-1" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <div className="flex items-center justify-between pt-4 border-t border-gray-50/80 text-gray-400">
-        <span className="text-[11px] font-semibold">Added {date}</span>
-        <button className="hover:text-gray-900 transition-colors">
-          <ActionIcon className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  </div>
-);
+    </>
+  );
+};
 
 const Collections = () => {
+  const { posts, loading } = useHome();
+  const dispatch = useDispatch();
+  const selectedCollection = useSelector((state) => state.home.selectedCollection);
+  const [selectedType, setSelectedType] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const topRef = useRef(null);
+
+  // Group posts into unique collections (Folders)
+  const availableCollections = useMemo(() => {
+    if (!posts) return [];
+    
+    const collectionMap = new Map();
+    posts.forEach(post => {
+      const folderName = post.folder || 'Unsorted';
+      if (!collectionMap.has(folderName)) {
+        collectionMap.set(folderName, { name: folderName, count: 0, stats: { pdf: 0, image: 0, video: 0, url: 0 } });
+      }
+      const col = collectionMap.get(folderName);
+      col.count++;
+      
+      if (post.type === 'pdf') col.stats.pdf++;
+      else if (post.type === 'image') col.stats.image++;
+      else if (post.type === 'youtube') col.stats.video++;
+      else col.stats.url++;
+    });
+
+    return Array.from(collectionMap.values()).sort((a, b) => b.count - a.count);
+  }, [posts]);
+
+  // Filter collections by type "selection feature" - technically filtering collections that have that type, 
+  // or filtering the detail view. Let's filter the collections shown that match the type.
+  const filteredCollections = useMemo(() => {
+    let results = availableCollections;
+    
+    if (selectedType !== 'All') {
+      const typeKey = selectedType.toLowerCase() === 'videos' ? 'video' : 
+                      selectedType.toLowerCase() === 'pdfs' ? 'pdf' :
+                      selectedType.toLowerCase() === 'images' ? 'image' : 'url';
+      results = results.filter(c => c.stats[typeKey] > 0);
+    }
+
+    if (searchQuery) {
+      results = results.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    
+    return results;
+  }, [availableCollections, selectedType, searchQuery]);
+
+  // Get posts for selected collection detail
+  const collectionPosts = useMemo(() => {
+    if (!selectedCollection || !posts) return [];
+    let items = posts.filter(p => (p.folder || 'Unsorted') === selectedCollection.name);
+    
+    // Also apply type filter to the detail list if active
+    if (selectedType !== 'All') {
+       const typeMap = { 'Articles': 'article', 'PDFs': 'pdf', 'Videos': 'youtube', 'Images': 'image' };
+       const targetType = typeMap[selectedType];
+       items = items.filter(p => {
+         if (targetType === 'article') return p.type !== 'pdf' && p.type !== 'image' && p.type !== 'youtube';
+         return p.type === targetType;
+       });
+    }
+    
+    return items;
+  }, [selectedCollection, posts, selectedType]);
+
+  const handleSelectCollection = (col) => {
+    dispatch(setSelectedCollection(col));
+    topRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  if (loading && !posts.length) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-white">
+        <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="animate-fade-in-up">
-      {/* Header Section */}
-      <div className="flex items-start justify-between mb-8 animate-fade-in-up stagger-1">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-bold text-gray-400 mb-3">
-            <span className="hover:text-gray-900 cursor-pointer transition-colors">Collections</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-            <span className="text-gray-900">AI Ethics Research</span>
+    <div ref={topRef} className="animate-fade-in-up -mx-8 -my-8 pb-20">
+      <div className="p-10 max-w-[1200px] mx-auto min-h-screen">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
+          <div className="animate-fade-in-up stagger-1">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+              <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">Curated Intelligence</span>
+            </div>
+            <h1 className="text-[48px] font-black tracking-tighter text-gray-900 leading-none mb-3">Neural Collections</h1>
+            <p className="text-[18px] text-gray-500 font-medium tracking-tight">Structured pathways through your synchronized research clusters.</p>
           </div>
           
-          <h1 className="text-[42px] font-extrabold tracking-tight text-gray-900 mb-2">AI Ethics Research</h1>
-          <div className="flex items-center gap-2 text-[14px] font-bold text-indigo-500/80">
-            <div className="w-2 h-2 rounded-full bg-indigo-400 opacity-90"></div>
-            AI-curated insights from 42 sources
+          <div className="flex items-center gap-3 animate-fade-in-up stagger-2 bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
+             {['All', 'Articles', 'PDFs', 'Videos', 'Images'].map(type => (
+               <button
+                 key={type}
+                 onClick={() => setSelectedType(type)}
+                 className={`px-6 py-2.5 rounded-xl text-[12px] font-black transition-all ${selectedType === type 
+                   ? 'bg-white text-indigo-600 shadow-sm border border-gray-100' 
+                   : 'text-gray-400 hover:text-gray-600'}`}
+               >
+                 {type}
+               </button>
+             ))}
           </div>
         </div>
-        
-        <div className="flex items-center gap-4 mt-6">
-          <div className="flex items-center bg-white rounded-full p-1 shadow-sm border border-gray-100">
-            <button className="p-2 rounded-full bg-gray-100 text-gray-900 w-[42px] h-[42px] flex items-center justify-center shadow-sm">
-              <Grid className="w-5 h-5" />
-            </button>
-            <button className="p-2 rounded-full text-gray-400 hover:bg-gray-50 hover:text-gray-900 transition-colors w-[42px] h-[42px] flex items-center justify-center">
-              <List className="w-5 h-5" />
-            </button>
-          </div>
-          <button className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-[14px] rounded-full text-[14px] font-bold transition-all shadow-md shadow-indigo-100 hover:shadow-lg hover:-translate-y-0.5">
-            <Plus className="w-[18px] h-[18px]" /> New Entry
-          </button>
-        </div>
-      </div>
 
-      {/* Filters Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 animate-fade-in-up stagger-2 border-b border-gray-100/80 pb-6 gap-4">
-        <div className="flex items-center gap-4 flex-wrap">
-          <button className="flex items-center gap-2 text-xs font-bold text-gray-700 bg-gray-100/50 hover:bg-gray-100 px-4 py-2 rounded-xl transition-colors min-h-[38px] min-w-[180px] justify-between">
-            <div className="flex items-center gap-2">
-               <span className="text-gray-400 uppercase tracking-widest text-[9px]">Sort:</span> Recently Updated 
-            </div>
-            <ChevronDown className="w-4 h-4 text-gray-400" />
-          </button>
+        {/* Search Bar */}
+        <div className="relative mb-12 animate-fade-in-up stagger-2 max-w-[600px]">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input 
+            type="text" 
+            placeholder="Search collections..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-white border border-gray-100 rounded-2xl py-4 pl-14 pr-6 outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-200 transition-all font-bold text-[14px] shadow-sm"
+          />
+        </div>
+
+        {/* Collections Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in-up stagger-3">
+          {filteredCollections.map((col) => (
+            <CollectionCard 
+              key={col.name} 
+              collection={col} 
+              onClick={() => handleSelectCollection(col)}
+            />
+          ))}
           
-          <div className="w-px h-6 bg-gray-200 mx-1 hidden md:block"></div>
-          
-          <div className="flex gap-2 flex-wrap min-h-[38px]">
-            <button className="px-5 py-2 rounded-full text-[11px] font-bold bg-white text-indigo-600 border border-indigo-100 shadow-[0_2px_8px_rgba(79,70,229,0.06)] transition-colors">All Resources</button>
-            <button className="px-5 py-2 rounded-full text-[11px] font-bold text-gray-500 bg-white hover:bg-gray-50 border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-colors">Articles</button>
-            <button className="px-5 py-2 rounded-full text-[11px] font-bold text-gray-500 bg-white hover:bg-gray-50 border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-colors">PDFs</button>
-            <button className="px-5 py-2 rounded-full text-[11px] font-bold text-gray-500 bg-white hover:bg-gray-50 border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-colors">Videos</button>
-          </div>
-        </div>
-        
-        <button className="flex items-center gap-2 text-[12px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
-          <ListFilter className="w-4 h-4" /> Advanced Filters
-        </button>
-      </div>
-
-      {/* Grid of Cards */}
-      <div className="flex flex-wrap gap-6 mb-12 animate-fade-in-up stagger-3 justify-center md:justify-start">
-        {/* Card 1 */}
-        <Card 
-          type="ARTICLE" source="medium.com" 
-          title="The Moral Landscape of AGI" 
-          tags={['#Ethics', '#AGI']} 
-          date="Oct 12, 2023" icon={Bookmark}
-          bgClass="bg-[#2a7a7a]"
-          graphic={
-            <div className="relative flex flex-col items-center justify-center">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110px] h-[110px] rounded-full bg-[#3facad] opacity-20 animate-pulse-slow"></div>
-              <div className="w-16 h-16 rounded-full bg-[#82d6d4] opacity-80 backdrop-blur-[2px] shadow-inner flex items-center justify-center relative z-10">
-                 {/* subtle globe marking */}
-                 <div className="w-full h-[1px] bg-white/40 absolute top-1/2 -translate-y-1/2 rotate-12"></div>
-                 <div className="h-full w-[1px] bg-white/40 absolute left-1/2 -translate-x-1/2 rotate-12"></div>
-                 <div className="w-10 h-10 border border-white/40 rounded-full absolute"></div>
-              </div>
-              <p className="mt-4 text-white/90 text-[10px] font-medium tracking-wide">Safe for work</p>
+          {filteredCollections.length === 0 && (
+            <div className="col-span-full py-32 flex flex-col items-center justify-center text-center opacity-50">
+               <Bookmark className="w-16 h-16 text-gray-300 mb-6" />
+               <h3 className="text-xl font-black text-gray-900">No Collections Found</h3>
+               <p className="font-bold text-gray-400">Expand your research to synthesize new clusters.</p>
             </div>
-          }
-        />
-
-        {/* Card 2 */}
-        <Card 
-          type="PDF REPORT" source="arxiv.org" 
-          title="Bias in Large Language Models: A Meta-Analysis" 
-          tags={['#LLM', '#Bias']} 
-          date="Oct 08, 2023" icon={Download}
-          bgClass="bg-[#dedeed]"
-          graphic={
-            <div className="flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
-               <div className="w-[50px] h-[60px] bg-[#a9a7d3] rounded-md flex items-center justify-center shadow-md relative">
-                 <div className="absolute top-0 right-0 w-3.5 h-3.5 bg-white/40 rounded-bl-sm rounded-tr-md"></div>
-                 <span className="text-white font-black text-xs tracking-tight">PDF</span>
-               </div>
-               
-               {/* Background abstract boxes */}
-               <div className="absolute w-[50px] h-[60px] bg-[#a9a7d3]/40 rounded-md -rotate-12 translate-x-4 translate-y-2 mix-blend-multiply opacity-60"></div>
-            </div>
-          }
-        />
-
-        {/* Card 3 */}
-        <Card 
-          type="VIDEO" source="youtube.com" 
-          title="Stanford Symposium: AI Governance & Law" 
-          tags={['#Governance', '#Law']} 
-          date="Sep 29, 2023" icon={Clock}
-          bgClass="bg-[#317373]"
-          graphic={
-            <div className="flex flex-col items-center justify-center w-full relative z-10 transition-transform duration-500 group-hover:-translate-y-1">
-              <div className="absolute -top-14 w-40 h-40 bg-[#1f5959] rounded-full opacity-60 blur-xl"></div>
-              
-              <div className="border-[1.5px] border-white/20 px-3 py-1 pb-[5px] rounded-lg bg-[#276b6b]/60 backdrop-blur-sm mb-4 relative z-10 flex flex-col items-center">
-                 <div className="w-full flex justify-between space-x-[2px] mb-[2px] opacity-70">
-                    <div className="w-1 h-1 bg-white rounded-full"></div>
-                    <div className="w-1 h-1 bg-white rounded-full"></div>
-                    <div className="w-1 h-1 bg-white rounded-full"></div>
-                    <div className="w-1 h-1 bg-white rounded-full"></div>
-                    <div className="w-1 h-1 bg-white rounded-full"></div>
-                 </div>
-                 <p className="text-[#f1ca7e] text-[10px] font-black uppercase tracking-[0.2em] relative top-[2px]">Resource</p>
-                 <div className="w-full flex justify-between space-x-[2px] mt-[3px] opacity-70">
-                    <div className="w-1 h-1 bg-white rounded-full"></div>
-                    <div className="w-1 h-1 bg-white rounded-full"></div>
-                    <div className="w-1 h-1 bg-white rounded-full"></div>
-                    <div className="w-1 h-1 bg-white rounded-full"></div>
-                    <div className="w-1 h-1 bg-white rounded-full"></div>
-                 </div>
-              </div>
-              
-              <div className="bg-[#e49c3b] px-4 py-1.5 rounded-full transform rotate-3 relative z-10 shadow-lg">
-                <p className="text-white text-[8px] font-bold uppercase tracking-widest leading-none mt-[1px]">Safe for work</p>
-              </div>
-            </div>
-          }
-        />
-
-        {/* Card 4 */}
-        <Card 
-          type="ARTICLE" source="openai.com" 
-          title="Safety Guidelines for Superintelligence" 
-          tags={['#Safety', '#AI']} 
-          date="Sep 21, 2023" icon={Share2}
-          bgClass="bg-[#1b5e5f]"
-          graphic={
-            <div className="relative w-full h-full flex items-center justify-center opacity-80 overflow-hidden group-hover:scale-105 transition-transform duration-700">
-               {/* Abstract shapes representing OpenAI style logo/art */}
-               <div className="absolute w-[80px] h-[80px] border-[16px] border-[#3eb4af] rounded-full top-[20%] right-[10%] transform rotate-45 mix-blend-screen opacity-90"></div>
-               <div className="absolute w-[50px] h-[50px] bg-[#3eb4af] rounded-tl-full rounded-tr-[10px] rounded-br-full rounded-bl-[10px] bottom-[10%] left-[20%] opacity-90 mix-blend-screen transform -rotate-[30deg]"></div>
-               <div className="absolute w-[30px] h-[30px] bg-[#3eb4af] rounded-tl-full rounded-tr-none rounded-br-full rounded-bl-full top-[15%] left-[30%] opacity-80 mix-blend-screen -rotate-90"></div>
-            </div>
-          }
-        />
-      </div>
-
-      {/* AI Summary Banner */}
-      <div className="bg-gradient-to-br from-[#ebeef1] to-[#e1e4e8] rounded-[24px] p-6 pr-8 flex items-center justify-between shadow-inner animate-fade-in-up stagger-4 relative overflow-hidden h-[95px] max-w-[1100px] border-[1px] border-white backdrop-blur flex-wrap md:flex-nowrap gap-4">        
-        <div className="flex items-center gap-5 relative z-10 w-full md:w-auto">
-          <div className="w-[50px] h-[50px] bg-white rounded-xl shadow-sm flex items-center justify-center shrink-0 border border-gray-100">
-            <Sparkles className="w-5 h-5 text-indigo-700 fill-indigo-700/30" />
-          </div>
-          <div>
-            <h3 className="text-[15px] font-bold text-gray-900 mb-1">AI Research Summary Available</h3>
-            <p className="text-[12px] text-gray-500 font-medium tracking-wide">
-              The AI has analyzed these 42 items and found a recurring theme: "The trade-off between model transparency and performance."
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex md:justify-end w-full md:w-auto relative z-10">
-           <button className="bg-white hover:bg-gray-50 text-indigo-700 px-6 py-2.5 rounded-full text-xs font-extrabold shadow-sm transition-all hover:shadow hover:-translate-y-0.5 whitespace-nowrap border border-gray-100">
-             View Synthesis
-           </button>
+          )}
         </div>
       </div>
 
+      {/* Right Analysis Panel */}
+      <CollectionAnalysisPanel 
+        collection={selectedCollection}
+        posts={collectionPosts}
+        onClose={() => dispatch(setSelectedCollection(null))}
+      />
     </div>
   );
 };
