@@ -6,6 +6,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useHome } from '../Hooks/useHome';
 import { useAuth } from '../../Auth/Hooks/useAuth';
 import { setTagSearchQuery } from '../home.slice';
+import { useNavigate } from 'react-router';
+
 
 const Navbar = ({
   showAddOptions,
@@ -28,7 +30,7 @@ const Navbar = ({
   const modalContentRef = useRef(null);
   const loaderIconRef = useRef(null);
   const loaderTextRef = useRef(null);
-
+  const navigate = useNavigate();
   const [activeModal, setActiveModal] = useState(null);
   const [urlInput, setUrlInput] = useState('');
   const [selectedFileName, setSelectedFileName] = useState('');
@@ -139,9 +141,9 @@ const Navbar = ({
             repeat: 1,
             ease: 'power2.inOut',
             onComplete: () => {
-                closeModal();
-                setShowDiscovery(true);
-                setShowRedDot(false);
+              closeModal();
+              setShowDiscovery(true);
+              setShowRedDot(false);
             }
           });
         })
@@ -286,7 +288,7 @@ const Navbar = ({
       <div className="sticky top-0 z-50">
         <header className="glass-effect px-8 py-5 flex items-center justify-between animate-fade-in relative z-10">
           <form onSubmit={handleSearch} className="relative w-full max-w-xl group">
-            <div 
+            <div
               onClick={handleSearch}
               className="absolute inset-y-0 left-0 pl-4 flex items-center cursor-pointer group"
             >
@@ -318,14 +320,14 @@ const Navbar = ({
             <div className="relative">
               <button
                 onClick={() => {
-                   if (showDiscovery) {
-                     if (suggestedPosts.length > 0) {
-                        setShowRedDot(true);
-                     }
-                   } else {
-                     setShowRedDot(false);
-                   }
-                   setShowDiscovery(!showDiscovery);
+                  if (showDiscovery) {
+                    if (suggestedPosts.length > 0) {
+                      setShowRedDot(true);
+                    }
+                  } else {
+                    setShowRedDot(false);
+                  }
+                  setShowDiscovery(!showDiscovery);
                 }}
                 className={`relative p-2 transition-all duration-300 rounded-full h-10 w-10 flex items-center justify-center ${showDiscovery ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400 hover:text-gray-900 hover:bg-gray-100'}`}
               >
@@ -346,24 +348,24 @@ const Navbar = ({
                       <div className="space-y-4 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
                         {suggestedPosts && suggestedPosts.length > 0 ? suggestedPosts.map((post, idx) => (
                           <div key={post._id || idx} className="bg-indigo-50/30 border border-indigo-100/60 rounded-3xl p-6 relative overflow-hidden group hover:border-indigo-300 transition-all cursor-default">
-                             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100/50 rounded-full blur-3xl -mr-12 -mt-12 pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                             <div className="flex items-center gap-2 mb-4">
-                               <Zap className="w-[14px] h-[14px] text-indigo-600 fill-indigo-600/20" />
-                               <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">AI Recommended</span>
-                             </div>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100/50 rounded-full blur-3xl -mr-12 -mt-12 pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            <div className="flex items-center gap-2 mb-4">
+                              <Zap className="w-[14px] h-[14px] text-indigo-600 fill-indigo-600/20" />
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">AI Recommended</span>
+                            </div>
 
-                             <h3 className="font-extrabold text-[15px] mb-2 text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-1">{post.title}</h3>
-                             <p className="text-[12px] text-gray-500 mb-5 leading-relaxed line-clamp-2">{post.summary}</p>
+                            <h3 className="font-extrabold text-[15px] mb-2 text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-1">{post.title}</h3>
+                            <p className="text-[12px] text-gray-500 mb-5 leading-relaxed line-clamp-2">{post.summary}</p>
 
-                             <div className="flex items-center justify-between pt-2 border-t border-indigo-100/40">
-                               <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> 98% Match</span>
-                               <button 
-                                 onClick={() => window.open(post.url, '_blank')}
-                                 className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1"
-                               >
-                                 Explore <ChevronRight className="w-3 h-3" />
-                               </button>
-                             </div>
+                            <div className="flex items-center justify-between pt-2 border-t border-indigo-100/40">
+                              <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> 98% Match</span>
+                              <button
+                                onClick={() => window.open(post.url, '_blank')}
+                                className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1"
+                              >
+                                Explore <ChevronRight className="w-3 h-3" />
+                              </button>
+                            </div>
                           </div>
                         )) : (
                           <div className="py-12 bg-gray-50/50 rounded-3xl border border-dashed border-gray-200 text-center">
@@ -379,15 +381,15 @@ const Navbar = ({
                       <h2 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">Popular Tags</h2>
                       <div className="flex flex-wrap gap-2">
                         {popularTags && popularTags.length > 0 ? popularTags.map(tag => (
-                          <button 
-                            key={tag} 
+                          <button
+                            key={tag}
                             onClick={() => handleTagClick(tag)}
                             className="px-3 py-1.5 bg-gray-50 border border-gray-100 text-xs font-semibold text-gray-600 rounded-xl hover:border-indigo-300 hover:text-indigo-600 hover:shadow-sm transition-all hover:-translate-y-0.5 active:scale-95"
                           >
                             #{tag}
                           </button>
                         )) : (
-                           <p className="text-[11px] text-gray-400 font-medium italic">No tags detected in current clusters.</p>
+                          <p className="text-[11px] text-gray-400 font-medium italic">No tags detected in current clusters.</p>
                         )}
                       </div>
                     </div>
@@ -400,9 +402,9 @@ const Navbar = ({
                 <span className="text-xs font-bold">{useSelector((state) => state.auth.user.username?.[0].toUpperCase())}</span>
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] font-bold">Profile</div>
               </button>
-              
-              <button 
-                onClick={handleLogout}
+
+              <button
+                onClick={() => { handleLogout(); navigate('/login') }}
                 className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all active:scale-95 group"
                 title="Logout Session"
               >

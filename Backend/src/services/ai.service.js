@@ -11,19 +11,6 @@ const model = new ChatMistralAI({
     model: "mistral-small-latest"
 })
 
-const imagetool = tool(
-    async ({ buffer }) => {
-        return await imagetextExtractorandUpload(buffer)
-    },
-    {
-        name: "imagetextExtractor",
-        description: "Extract text from image",
-        schema: z.object({
-            buffer: z.string().describe("Buffer or base64 of the image")
-        })
-    }
-)
-
 const scraptool = tool(
     async ({ url }) => {
         return await extractContent(url)
@@ -52,7 +39,7 @@ const youtubetool = tool(
 
 const agent = createAgent({
     model,
-    tools: [imagetool, scraptool, youtubetool],
+    tools: [scraptool, youtubetool],
     systemMessage: "You are a helpful assistant that can extract information from images, websites, and YouTube videos. Use the tools provided when a URL or image is mentioned.",
 })
 
@@ -84,9 +71,11 @@ Output must always follow this exact format:
             new HumanMessage(content)
         ]
     })
-    const result = JSON.parse(response.messages[response.messages.length - 1].content)
-    return result
+    let text = response.messages[response.messages.length - 1].content;
+    text = text.replace(/```json\n?|```/g, "").trim();
+    return JSON.parse(text);
 }
+
 
 export async function generateSummary(content) {
     const systemPromt = `You are a summarization assistant.
@@ -94,7 +83,7 @@ export async function generateSummary(content) {
 Generate a concise summary of the following content.
 
 Rules:
-- Summary should be deatiled and between 40 to 50 words
+- Summary should be deatiled and of 60 to 70 words
 - Use clear and concise language
 - Return only the summary
 `

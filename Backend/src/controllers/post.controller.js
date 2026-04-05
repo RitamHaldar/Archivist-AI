@@ -12,7 +12,7 @@ export async function createPost(req, res) {
     if (file) {
         const buffer = file.buffer
         if (file.mimetype.startsWith("image")) {
-            text = await imagetextExtractorandUpload(buffer, file.mimetype)
+            text = await imagetextExtractorandUpload(buffer, file.mimetype, file.originalname)
         }
         else {
             text = await pdftextExtractor(buffer)
@@ -27,7 +27,7 @@ export async function createPost(req, res) {
         tags = await generateTags(url)
     }
 
-    const embedding = await generateEmbedding(title + " " + summary + " " + text)
+    /**const embedding = await generateEmbedding(title + " " + summary + " " + text)
     if (!embedding || embedding.length === 0) {
         return res.status(500).json({ message: "Failed to generate embedding" })
     }
@@ -134,7 +134,7 @@ export async function createPost(req, res) {
         collectionId,
         collectionName,
         suggestedposts
-    })
+    })*/
 }
 export async function getPosts(req, res) {
     const posts = await postModel.find({ user: req.user.id })

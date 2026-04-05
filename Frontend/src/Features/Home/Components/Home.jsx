@@ -2,7 +2,7 @@ import React, { useMemo, useEffect } from 'react';
 import {
   Link as LinkIcon, FileText, Sparkles, Clock, Zap, Network, Star, ArrowUpRight, Globe, PlayCircle, Image as ImageIcon, X
 } from 'lucide-react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedCollection } from '../home.slice';
 
 import { useHome } from '../Hooks/useHome';
@@ -94,7 +94,9 @@ const PostDetailPanel = ({ post, onClose }) => {
 const Home = ({ setActiveTab }) => {
   const { posts, loading, fetchHomeData } = useHome();
   const dispatch = useDispatch();
+  const username = useSelector((state) => state.auth.user?.username || 'Researcher');
   const [selectedPost, setSelectedPost] = React.useState(null);
+  
   useEffect(() => {
     fetchHomeData();
   }, []);
@@ -141,7 +143,7 @@ const Home = ({ setActiveTab }) => {
       <section className="animate-fade-in-up stagger-1">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 flex items-center gap-3">
-            Welcome back, Researcher <span className="animate-float origin-bottom-left inline-block">👋</span>
+            Welcome back, {username} <span className="animate-float origin-bottom-left inline-block">👋</span>
           </h1>
         </div>
 

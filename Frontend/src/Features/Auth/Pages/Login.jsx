@@ -89,7 +89,7 @@ const Login = () => {
                     <p className="text-gray-500 mt-2">Log in to your Archivist-AI account</p>
                 </div>
 
-                <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
+                <form ref={formRef} onSubmit={handleSubmit} className="space-y-7">
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 ml-1">Username or Email</label>
                         <div className="relative group">
@@ -107,6 +107,7 @@ const Login = () => {
                     </div>
 
                     <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700 ml-1">Password</label>
                         <div className="relative group">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-indigo-500" />
                             <input

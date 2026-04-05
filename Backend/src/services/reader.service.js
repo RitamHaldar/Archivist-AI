@@ -1,7 +1,7 @@
 import axios from "axios";
 import { PDFParse } from "pdf-parse";
 
-export const imagetextExtractorandUpload = async (buffer, mimetype = "image/jpeg") => {
+export const imagetextExtractorandUpload = async (buffer, mimetype = "image/jpeg", originalname) => {
     try {
         if (!process.env.OCR_SPACE_API_KEY) {
             console.error("OCR_SPACE_API_KEY is not defined in environment variables.");
@@ -28,7 +28,7 @@ export const imagetextExtractorandUpload = async (buffer, mimetype = "image/jpeg
         if (response.data && response.data.ParsedResults && response.data.ParsedResults.length > 0) {
             const text = response.data.ParsedResults[0].ParsedText;
             if (!text || text.trim() === "") {
-                return "No text found in the image";
+                return "The file name is generate some description about it" + originalname;
             }
             return text;
         }
@@ -47,5 +47,6 @@ export const pdftextExtractor = async (buffer) => {
     if (text.length > 15000) {
         text = text.substring(0, 15000);
     }
+    console.log(text)
     return text;
 };
