@@ -2,7 +2,6 @@ import { ChatMistralAI, MistralAIEmbeddings } from "@langchain/mistralai"
 import { HumanMessage, SystemMessage, createAgent } from "langchain"
 import { tool } from "@langchain/core/tools"
 import { z } from "zod"
-import { imagetextExtractorandUpload } from "./reader.service.js"
 import { extractContent } from "./websitescrap.service.js"
 import { getVideoDetails } from "./youtubedetails.service.js"
 

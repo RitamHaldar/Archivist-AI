@@ -25,11 +25,9 @@ export const extractContent = async (url) => {
         console.log("Could not extract clean content.");
         return null;
     }
-
     const result = {
         title: article.title,
         content: article.textContent
     };
-
-    return JSON.stringify(result);
+    return "This is the content of the website or post give reply based on this content " + JSON.stringify(result);
 };

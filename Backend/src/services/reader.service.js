@@ -47,6 +47,5 @@ export const pdftextExtractor = async (buffer) => {
     if (text.length > 15000) {
         text = text.substring(0, 15000);
     }
-    console.log(text)
     return text;
 };
