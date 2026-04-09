@@ -7,7 +7,7 @@ import { getVideoDetails } from "./youtubedetails.service.js"
 
 const model = new ChatMistralAI({
     apiKey: process.env.MISTRAL_API_KEY,
-    model: "mistral-small-latest"
+    model: "mistral-medium-latest"
 })
 
 const scraptool = tool(
